@@ -1,7 +1,10 @@
 mincc: mincc.c
 	gcc -o mincc mincc.c
 
-clean:
-	rm -f mincc
+test:
+	./test.sh
 
-.PHONY: clean
+clean:
+	rm -f mincc tmp*
+
+.PHONY: test clean

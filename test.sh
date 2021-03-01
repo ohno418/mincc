@@ -1,5 +1,10 @@
 make
+
+echo '=== test start ==='
+
 ./mincc > tmp.s
-gcc -S -o tmp tmp.s
+gcc -o tmp tmp.s
 ./tmp
-echo $?
+echo "42?: $?"
+
+echo '=== test end ==='
