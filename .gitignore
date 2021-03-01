@@ -1,2 +1,3 @@
 mincc
 tmp*
+*.o
