@@ -1,10 +1,12 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 /* tokenize.c */
 typedef enum {
-  TK_NUM,
+  TK_NUM, // number
+  TK_ADD, // +
 } TokenKind;
 
 typedef struct Token Token;
@@ -21,6 +23,7 @@ Token *tokenize(char *p);
 /* parse.c */
 typedef enum {
   ND_NUM,
+  ND_ADD,
 } NodeKind;
 
 typedef struct Node Node;
@@ -30,6 +33,9 @@ struct Node {
 
   // ND_NUM
   int val;
+
+  Node *lhs; // left-hand side
+  Node *rhs; // right-hand side
 };
 
 Node *parse(Token *tok);
