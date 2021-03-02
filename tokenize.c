@@ -13,6 +13,11 @@ Token *tokenize(char *p) {
   Token *cur = &head;
 
   for (;;) {
+    if (isspace(*p)) {
+      p++;
+      continue;
+    }
+
     if (isdigit(*p)) {
       char *start = p;
       for (; isdigit(*p); p++);
