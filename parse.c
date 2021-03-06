@@ -20,15 +20,20 @@ Node *expr(Token **rest, Token *tok) {
   return add(rest, tok);
 }
 
-// add = num (+ num)?
+// add = num ("+" num)*
 Node *add(Token **rest, Token *tok) {
   Node *node = num(&tok, tok);
 
-  if (equal(tok, "+")) {
-    Node *binary = new_node(ND_ADD);
-    binary->lhs = node;
-    binary->rhs = num(&tok, tok->next);
-    node = binary;
+  for (;;) {
+    if (equal(tok, "+")) {
+      Node *binary = new_node(ND_ADD);
+      binary->lhs = node;
+      binary->rhs = num(&tok, tok->next);
+      node = binary;
+      continue;
+    }
+
+    break;
   }
 
   *rest = tok;

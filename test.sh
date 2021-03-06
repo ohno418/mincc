@@ -27,4 +27,6 @@ assert '34+8' 42
 assert '1 +2' 3
 assert '  1+ 2 ' 3
 
+assert '1+2+3' 6
+
 echo OK
