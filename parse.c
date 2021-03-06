@@ -57,7 +57,7 @@ Node *mul(Token **rest, Token *tok) {
     if (equal(tok, "*")) {
       Node *binary = new_node(ND_MUL);
       binary->lhs = node;
-      binary->rhs = mul(&tok, tok->next);
+      binary->rhs = num(&tok, tok->next);
       node = binary;
       continue;
     }
