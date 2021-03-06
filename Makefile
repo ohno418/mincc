@@ -6,7 +6,7 @@ mincc: $(OBJS)
 
 OBJS: mincc.h
 
-test:
+test: mincc ./test.sh
 	./test.sh
 
 clean:

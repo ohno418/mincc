@@ -1,35 +1,30 @@
-make
+#!/bin/bash
 
-echo '=== test start ==='
+assert() {
+  input="$1"
+  expected="$2"
 
-./mincc 42 > tmp.s
-gcc -o tmp tmp.s
-./tmp
-echo "42?: $?"
+  ./mincc "$input" > tmp.s
+  gcc -o tmp tmp.s
+  ./tmp
+  actual="$?"
 
-./mincc 123 > tmp.s
-gcc -o tmp tmp.s
-./tmp
-echo "123?: $?"
+  if [ "$actual" == "$expected" ]
+    then
+      echo "$input => $actual"
+    else
+      echo "$input => $expected expected, but got $actual"
+      exit 1
+  fi
+}
 
-./mincc '1+2' > tmp.s
-gcc -o tmp tmp.s
-./tmp
-echo "3?: $?"
+assert 42 42
+assert 123 123
 
-./mincc '34+8' > tmp.s
-gcc -o tmp tmp.s
-./tmp
-echo "42?: $?"
+assert '1+2' 3
+assert '34+8' 42
 
-./mincc '1 +2' > tmp.s
-gcc -o tmp tmp.s
-./tmp
-echo "3?: $?"
+assert '1 +2' 3
+assert '  1+ 2 ' 3
 
-./mincc '  1+ 2 ' > tmp.s
-gcc -o tmp tmp.s
-./tmp
-echo "3?: $?"
-
-echo '=== test end ==='
+echo OK
