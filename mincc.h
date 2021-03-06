@@ -7,6 +7,7 @@
 typedef enum {
   TK_NUM, // number
   TK_ADD, // +
+  TK_EOF, // end-of-file
 } TokenKind;
 
 typedef struct Token Token;

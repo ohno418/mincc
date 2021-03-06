@@ -18,7 +18,7 @@ Node *num(Token **rest, Token *tok);
 Node *add(Token **rest, Token *tok) {
   Node *node = num(&tok, tok);
 
-  if (tok && equal(tok, "+")) {
+  if (equal(tok, "+")) {
     Node *binary = new_node(ND_ADD);
     binary->lhs = node;
     binary->rhs = num(&tok, tok->next);

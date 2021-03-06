@@ -34,5 +34,6 @@ Token *tokenize(char *p) {
     break;
   }
 
+  cur->next = new_token(TK_EOF, p, 0);
   return head.next;
 }
