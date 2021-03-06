@@ -19,20 +19,20 @@ Token *tokenize(char *p) {
 
   for (;;) {
     if (isspace(*p)) {
-      p++;
+      p = p + 1;
       continue;
     }
 
     if (isdigit(*p)) {
       char *start = p;
-      for (; isdigit(*p); p++);
+      for (; isdigit(*p); p = p + 1);
       cur = cur->next = new_token(TK_NUM, start, p - start);
       continue;
     }
 
     if (ispunct(*p)) {
       cur = cur->next = new_token(TK_PUNCT, p, 1);
-      p++;
+      p = p + 1;
       continue;
     }
 
