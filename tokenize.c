@@ -26,7 +26,7 @@ Token *tokenize(char *p) {
     }
 
     if (ispunct(*p)) {
-      cur = cur->next = new_token(TK_ADD, p, 1);
+      cur = cur->next = new_token(TK_PUNCT, p, 1);
       p++;
       continue;
     }

@@ -29,4 +29,7 @@ assert '  1+ 2 ' 3
 
 assert '1+2+3' 6
 
+assert '6-2' 4
+assert '6+2-3' 5
+
 echo OK

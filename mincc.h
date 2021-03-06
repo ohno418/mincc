@@ -5,9 +5,9 @@
 
 /* tokenize.c */
 typedef enum {
-  TK_NUM, // number
-  TK_ADD, // +
-  TK_EOF, // end-of-file
+  TK_NUM,   // number
+  TK_PUNCT, // Puctuatos
+  TK_EOF,   // End-of-file
 } TokenKind;
 
 typedef struct Token Token;
@@ -24,7 +24,8 @@ Token *tokenize(char *p);
 /* parse.c */
 typedef enum {
   ND_NUM,
-  ND_ADD,
+  ND_ADD, // +
+  ND_SUB, // -
 } NodeKind;
 
 typedef struct Node Node;
