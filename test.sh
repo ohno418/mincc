@@ -37,4 +37,10 @@ assert '6*2-2' 10
 assert '2+6*2' 14
 assert '2+6*2-3*2' 8
 
+assert '6/2' 3
+assert '6/2-1' 2
+assert '1+6/2' 4
+assert '6/2*3' 9
+assert '2*6/2' 6
+
 echo OK

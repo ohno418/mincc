@@ -31,6 +31,13 @@ void gen_expr(Node *node) {
     return;
   }
 
+  if (node->kind == ND_DIV) {
+    printf("  cqo\n");
+    printf("  idiv rdi\n");
+    printf("  push rax\n");
+    return;
+  }
+
   error("expression expected");
 }
 

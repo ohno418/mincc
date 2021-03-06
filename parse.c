@@ -49,13 +49,21 @@ Node *add(Token **rest, Token *tok) {
   return node;
 }
 
-// mul = num ("*" num)*
+// mul = num ("*" num | "/" num)*
 Node *mul(Token **rest, Token *tok) {
   Node *node = num(&tok, tok);
 
   for (;;) {
     if (equal(tok, "*")) {
       Node *binary = new_node(ND_MUL);
+      binary->lhs = node;
+      binary->rhs = num(&tok, tok->next);
+      node = binary;
+      continue;
+    }
+
+    if (equal(tok, "/")) {
+      Node *binary = new_node(ND_DIV);
       binary->lhs = node;
       binary->rhs = num(&tok, tok->next);
       node = binary;
