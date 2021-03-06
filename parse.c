@@ -49,10 +49,8 @@ Node *add(Token **rest, Token *tok) {
 }
 
 Node *num(Token **rest, Token *tok) {
-  if (tok->kind != TK_NUM) {
-    printf("expected a number\n");
-    exit(1);
-  }
+  if (tok->kind != TK_NUM)
+    error("expected a number");
 
   Node *node = new_node(ND_NUM);
   node->val = atoi(tok->loc);
@@ -63,10 +61,8 @@ Node *num(Token **rest, Token *tok) {
 Node *parse(Token *tok) {
   Node *node = expr(&tok, tok);
 
-  if (tok->kind != TK_EOF) {
-    printf("extra token\n");
-    exit(1);
-  }
+  if (tok->kind != TK_EOF)
+    error("extra token");
 
   return node;
 }

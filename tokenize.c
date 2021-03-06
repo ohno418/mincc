@@ -1,5 +1,10 @@
 #include "mincc.h"
 
+void error(char *msg) {
+  fprintf(stderr, "%s\n", msg);
+  exit(1);
+}
+
 Token *new_token(TokenKind kind, char *loc, int len) {
   Token *tok = calloc(1, sizeof(Token));
   tok->kind = kind;

@@ -18,6 +18,7 @@ struct Token {
   int len;
 };
 
+void error(char *msg);
 Token *tokenize(char *p);
 
 

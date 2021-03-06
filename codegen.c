@@ -25,8 +25,7 @@ void gen_expr(Node *node) {
     return;
   }
 
-  printf("expression expected");
-  exit(1);
+  error("expression expected");
 }
 
 void codegen(Node *node) {
