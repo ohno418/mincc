@@ -13,6 +13,7 @@ _Bool equal(Token *tok, char *str) {
 
 Node *expr(Token **rest, Token *tok);
 Node *add(Token **rest, Token *tok);
+Node *mul(Token **rest, Token *tok);
 Node *num(Token **rest, Token *tok);
 
 // expr = add
@@ -20,15 +21,15 @@ Node *expr(Token **rest, Token *tok) {
   return add(rest, tok);
 }
 
-// add = num ("+" num | "-" num)*
+// add = mul ("+" mul | "-" mul)*
 Node *add(Token **rest, Token *tok) {
-  Node *node = num(&tok, tok);
+  Node *node = mul(&tok, tok);
 
   for (;;) {
     if (equal(tok, "+")) {
       Node *binary = new_node(ND_ADD);
       binary->lhs = node;
-      binary->rhs = num(&tok, tok->next);
+      binary->rhs = mul(&tok, tok->next);
       node = binary;
       continue;
     }
@@ -36,7 +37,27 @@ Node *add(Token **rest, Token *tok) {
     if (equal(tok, "-")) {
       Node *binary = new_node(ND_SUB);
       binary->lhs = node;
-      binary->rhs = num(&tok, tok->next);
+      binary->rhs = mul(&tok, tok->next);
+      node = binary;
+      continue;
+    }
+
+    break;
+  }
+
+  *rest = tok;
+  return node;
+}
+
+// mul = num ("*" num)*
+Node *mul(Token **rest, Token *tok) {
+  Node *node = num(&tok, tok);
+
+  for (;;) {
+    if (equal(tok, "*")) {
+      Node *binary = new_node(ND_MUL);
+      binary->lhs = node;
+      binary->rhs = mul(&tok, tok->next);
       node = binary;
       continue;
     }

@@ -9,9 +9,9 @@ void gen_expr(Node *node) {
   // lhs on RAX
   // rhs on RDI
   gen_expr(node->lhs);
-  printf("  pop rax\n");
   gen_expr(node->rhs);
   printf("  pop rdi\n");
+  printf("  pop rax\n");
 
   if (node->kind == ND_ADD) {
     printf("  add rax, rdi\n");
@@ -21,6 +21,12 @@ void gen_expr(Node *node) {
 
   if (node->kind == ND_SUB) {
     printf("  sub rax, rdi\n");
+    printf("  push rax\n");
+    return;
+  }
+
+  if (node->kind == ND_MUL) {
+    printf("  imul rax, rdi\n");
     printf("  push rax\n");
     return;
   }

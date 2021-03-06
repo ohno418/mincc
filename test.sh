@@ -32,4 +32,9 @@ assert '1+2+3' 6
 assert '6-2' 4
 assert '6+2-3' 5
 
+assert '6*2' 12
+assert '6*2-2' 10
+assert '2+6*2' 14
+assert '2+6*2-3*2' 8
+
 echo OK
