@@ -11,8 +11,14 @@ _Bool equal(Token *tok, char *str) {
     strncmp(tok->loc, str, tok->len) == 0;
 }
 
+Node *expr(Token **rest, Token *tok);
 Node *add(Token **rest, Token *tok);
 Node *num(Token **rest, Token *tok);
+
+// expr = add
+Node *expr(Token **rest, Token *tok) {
+  return add(rest, tok);
+}
 
 // add = num (+ num)?
 Node *add(Token **rest, Token *tok) {
@@ -42,5 +48,12 @@ Node *num(Token **rest, Token *tok) {
 }
 
 Node *parse(Token *tok) {
-  return add(&tok, tok);
+  Node *node = expr(&tok, tok);
+
+  if (tok->kind != TK_EOF) {
+    printf("extra token\n");
+    exit(1);
+  }
+
+  return node;
 }

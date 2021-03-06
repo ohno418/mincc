@@ -1,14 +1,14 @@
 #include "mincc.h"
 
-void expr(Node *node) {
+void gen_expr(Node *node) {
   if (node->kind == ND_NUM) {
     printf("  push %d\n", node->val);
     return;
   }
 
-  expr(node->lhs);
+  gen_expr(node->lhs);
   printf("  pop rdi\n");
-  expr(node->rhs);
+  gen_expr(node->rhs);
   printf("  pop rax\n");
 
   if (node->kind == ND_ADD) {
@@ -25,7 +25,7 @@ void codegen(Node *node) {
   printf("  .intel_syntax noprefix\n");
   printf("  .globl main\n");
   printf("main:\n");
-  expr(node);
+  gen_expr(node);
   printf("  pop rax\n");
   printf("  ret\n");
 }
