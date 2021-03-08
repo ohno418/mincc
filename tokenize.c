@@ -31,8 +31,10 @@ Token *tokenize(char *p) {
     }
 
     if (ispunct(*p)) {
-      cur = cur->next = new_token(TK_PUNCT, p, 1);
+      char *start = p;
       p = p + 1;
+      for (; ispunct(*p); p = p + 1);
+      cur = cur->next = new_token(TK_PUNCT, start, p - start);
       continue;
     }
 

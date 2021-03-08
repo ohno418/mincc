@@ -12,13 +12,29 @@ _Bool equal(Token *tok, char *str) {
 }
 
 Node *expr(Token **rest, Token *tok);
+Node *equality(Token **rest, Token *tok);
 Node *add(Token **rest, Token *tok);
 Node *mul(Token **rest, Token *tok);
 Node *num(Token **rest, Token *tok);
 
-// expr = add
+// expr = equality
 Node *expr(Token **rest, Token *tok) {
-  return add(rest, tok);
+  return equality(rest, tok);
+}
+
+// equality = add ("==" add)?
+Node *equality(Token **rest, Token *tok) {
+  Node *node = add(&tok, tok);
+
+  if (equal(tok, "==")) {
+    Node *binary = new_node(ND_EQ);
+    binary->lhs = node;
+    binary->rhs = add(&tok, tok->next);
+    node = binary;
+  }
+
+  *rest = tok;
+  return node;
 }
 
 // add = mul ("+" mul | "-" mul)*

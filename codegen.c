@@ -38,6 +38,14 @@ void gen_expr(Node *node) {
     return;
   }
 
+  if (node->kind == ND_EQ) {
+    printf("  cmp rax, rdi\n");
+    printf("  sete al\n");
+    printf("  movzb rax, al\n");
+    printf("  push rax\n");
+    return;
+  }
+
   error("expression expected");
 }
 

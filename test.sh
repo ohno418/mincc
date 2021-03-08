@@ -43,4 +43,7 @@ assert '1+6/2' 4
 assert '6/2*3' 9
 assert '2*6/2' 6
 
+assert '3==4' 0
+assert '3==3' 1
+
 echo OK
