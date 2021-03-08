@@ -30,6 +30,7 @@ typedef enum {
   ND_MUL, // *
   ND_DIV, // /
   ND_EQ,  // ==
+  ND_NEQ, // !=
 } NodeKind;
 
 typedef struct Node Node;

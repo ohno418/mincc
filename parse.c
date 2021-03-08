@@ -22,12 +22,19 @@ Node *expr(Token **rest, Token *tok) {
   return equality(rest, tok);
 }
 
-// equality = add ("==" add)?
+// equality = add ("==" add | "!=" add)?
 Node *equality(Token **rest, Token *tok) {
   Node *node = add(&tok, tok);
 
   if (equal(tok, "==")) {
     Node *binary = new_node(ND_EQ);
+    binary->lhs = node;
+    binary->rhs = add(&tok, tok->next);
+    node = binary;
+  }
+
+  if (equal(tok, "!=")) {
+    Node *binary = new_node(ND_NEQ);
     binary->lhs = node;
     binary->rhs = add(&tok, tok->next);
     node = binary;
