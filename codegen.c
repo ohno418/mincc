@@ -57,11 +57,20 @@ void gen_expr(Node *node) {
   error("expression expected");
 }
 
+void gen_stmt(Node *node) {
+  if (node->kind == ND_EXPR_STMT) {
+    gen_expr(node->lhs);
+    return;
+  }
+
+  error("statment expected");
+}
+
 void codegen(Node *node) {
   printf("  .intel_syntax noprefix\n");
   printf("  .globl main\n");
   printf("main:\n");
-  gen_expr(node);
+  gen_stmt(node);
   printf("  pop rax\n");
   printf("  ret\n");
 }

@@ -1,21 +1,41 @@
 #include "mincc.h"
 
+_Bool equal(Token *tok, char *str) {
+  return tok->len == strlen(str) &&
+    strncmp(tok->loc, str, tok->len) == 0;
+}
+
 Node *new_node(NodeKind kind) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = kind;
   return node;
 }
 
-_Bool equal(Token *tok, char *str) {
-  return tok->len == strlen(str) &&
-    strncmp(tok->loc, str, tok->len) == 0;
+Node *new_unary(NodeKind kind, Node *lhs) {
+  Node *node = new_node(kind);
+  node->lhs = lhs;
+  return node;
 }
 
+Node *expr_stmt(Token **rest, Token *tok);
 Node *expr(Token **rest, Token *tok);
 Node *equality(Token **rest, Token *tok);
 Node *add(Token **rest, Token *tok);
 Node *mul(Token **rest, Token *tok);
 Node *num(Token **rest, Token *tok);
+
+// expr_stmt = expr ";"
+Node *expr_stmt(Token **rest, Token *tok) {
+  Node *node = expr(&tok, tok);
+
+  if (!equal(tok, ";")) {
+    error("expected \";\"");
+  }
+
+  node = new_unary(ND_EXPR_STMT, node);
+  *rest = tok->next;
+  return node;
+}
 
 // expr = equality
 Node *expr(Token **rest, Token *tok) {
@@ -111,7 +131,7 @@ Node *num(Token **rest, Token *tok) {
 }
 
 Node *parse(Token *tok) {
-  Node *node = expr(&tok, tok);
+  Node *node = expr_stmt(&tok, tok);
 
   if (tok->kind != TK_EOF)
     error("extra token");

@@ -24,13 +24,14 @@ Token *tokenize(char *p);
 
 /* parse.c */
 typedef enum {
-  ND_NUM,
-  ND_ADD, // +
-  ND_SUB, // -
-  ND_MUL, // *
-  ND_DIV, // /
-  ND_EQ,  // ==
-  ND_NEQ, // !=
+  ND_NUM,       // integer
+  ND_ADD,       // +
+  ND_SUB,       // -
+  ND_MUL,       // *
+  ND_DIV,       // /
+  ND_EQ,        // ==
+  ND_NEQ,       // !=
+  ND_EXPR_STMT, // expression statement
 } NodeKind;
 
 typedef struct Node Node;
