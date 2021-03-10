@@ -17,7 +17,7 @@ Token *tokenize(char *p) {
   Token head = {};
   Token *cur = &head;
 
-  for (;;) {
+  for (; *p;) {
     if (isspace(*p)) {
       p = p + 1;
       continue;
@@ -38,7 +38,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    break;
+    error("invalid token");
   }
 
   cur->next = new_token(TK_EOF, p, 0);
