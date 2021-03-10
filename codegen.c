@@ -60,6 +60,7 @@ void gen_expr(Node *node) {
 void gen_stmt(Node *node) {
   if (node->kind == ND_EXPR_STMT) {
     gen_expr(node->lhs);
+    printf("  pop rax\n");
     return;
   }
 
@@ -70,7 +71,9 @@ void codegen(Node *node) {
   printf("  .intel_syntax noprefix\n");
   printf("  .globl main\n");
   printf("main:\n");
-  gen_stmt(node);
-  printf("  pop rax\n");
+
+  for (Node *n = node; n; n = n->next)
+    gen_stmt(n);
+
   printf("  ret\n");
 }

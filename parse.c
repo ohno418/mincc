@@ -17,12 +17,18 @@ Node *new_unary(NodeKind kind, Node *lhs) {
   return node;
 }
 
+Node *stmt(Token **rest, Token *tok);
 Node *expr_stmt(Token **rest, Token *tok);
 Node *expr(Token **rest, Token *tok);
 Node *equality(Token **rest, Token *tok);
 Node *add(Token **rest, Token *tok);
 Node *mul(Token **rest, Token *tok);
 Node *num(Token **rest, Token *tok);
+
+// stmt = expr_stmt
+Node *stmt(Token **rest, Token *tok) {
+  return expr_stmt(rest, tok);
+}
 
 // expr_stmt = expr ";"
 Node *expr_stmt(Token **rest, Token *tok) {
@@ -130,11 +136,13 @@ Node *num(Token **rest, Token *tok) {
   return node;
 }
 
+// program = stmt*
 Node *parse(Token *tok) {
-  Node *node = expr_stmt(&tok, tok);
+  Node head;
+  Node *cur = &head;
 
-  if (tok->kind != TK_EOF)
-    error("extra token");
+  for (; tok->kind != TK_EOF;)
+    cur = cur->next = stmt(&tok, tok);
 
-  return node;
+  return head.next;
 }

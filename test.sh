@@ -49,4 +49,6 @@ assert '3==3;' 1
 assert '3!=4;' 1
 assert '3!=3;' 0
 
+assert '1; 2; 3;' 3
+
 echo OK
