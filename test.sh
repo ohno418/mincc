@@ -51,4 +51,8 @@ assert '3!=3;' 0
 
 assert '1; 2; 3;' 3
 
+assert 'a=42; a;' 42
+assert 'a=42; a+3;' 45
+assert 'a=42; z=2; a+z;' 44
+
 echo OK

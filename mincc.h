@@ -6,8 +6,9 @@
 /* tokenize.c */
 typedef enum {
   TK_NUM,   // number
-  TK_PUNCT, // Puctuatos
-  TK_EOF,   // End-of-file
+  TK_IDENT, // identifier
+  TK_PUNCT, // puctuatos
+  TK_EOF,   // end-of-file
 } TokenKind;
 
 typedef struct Token Token;
@@ -32,6 +33,8 @@ typedef enum {
   ND_EQ,        // ==
   ND_NEQ,       // !=
   ND_EXPR_STMT, // expression statement
+  ND_ASSIGN,    // assignment
+  ND_VAR,       // variable
 } NodeKind;
 
 typedef struct Node Node;
@@ -39,11 +42,14 @@ struct Node {
   Node *next;
   NodeKind kind;
 
+  Node *lhs; // left-hand side
+  Node *rhs; // right-hand side
+
   // ND_NUM
   int val;
 
-  Node *lhs; // left-hand side
-  Node *rhs; // right-hand side
+  // ND_VAR
+  char name;
 };
 
 Node *parse(Token *tok);

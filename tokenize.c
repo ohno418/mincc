@@ -38,6 +38,12 @@ Token *tokenize(char *p) {
       continue;
     }
 
+    if (isalpha(*p)) {
+      cur = cur->next = new_token(TK_IDENT, p, 1);
+      p = p + 1;
+      continue;
+    }
+
     error("invalid token");
   }
 
