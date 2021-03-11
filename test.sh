@@ -55,4 +55,8 @@ assert 'a=42; a;' 42
 assert 'a=42; a+3;' 45
 assert 'a=42; z=2; a+z;' 44
 
+assert 'var=34; var;' 34
+assert 'foo=12; var=34; foo+var;' 46
+assert 'foo=12; faa=34; foo+faa;' 46
+
 echo OK

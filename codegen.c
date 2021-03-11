@@ -4,9 +4,8 @@ void gen_addr(Node *node) {
   if (node->kind != ND_VAR)
     error("expected a variable node");
 
-  int offset = (node->name - 'a' + 1) * 8;
   printf("  mov rax, rbp\n");
-  printf("  sub rax, %d\n", offset);
+  printf("  sub rax, %d\n", node->var->offset);
   printf("  push rax\n");
 }
 
@@ -95,17 +94,21 @@ void gen_stmt(Node *node) {
   error("statment expected");
 }
 
-void codegen(Node *node) {
+void codegen(Function *prog) {
   printf("  .intel_syntax noprefix\n");
   printf("  .globl main\n");
   printf("main:\n");
 
+  int stack_size = 0;
+  for (Var *v = prog->lvars; v; v = v->next)
+    stack_size = stack_size + v->offset;
+
   // prologue
   printf("  push rbp\n");
   printf("  mov rbp, rsp\n");
-  printf("  sub rsp, 208\n");
+  printf("  sub rsp, %d\n", stack_size);
 
-  for (Node *n = node; n; n = n->next)
+  for (Node *n = prog->body; n; n = n->next)
     gen_stmt(n);
 
   // epilogue

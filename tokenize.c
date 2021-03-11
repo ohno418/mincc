@@ -39,8 +39,9 @@ Token *tokenize(char *p) {
     }
 
     if (isalpha(*p)) {
-      cur = cur->next = new_token(TK_IDENT, p, 1);
-      p = p + 1;
+      char *start = p;
+      for (; isalpha(*p); p = p + 1);
+      cur = cur->next = new_token(TK_IDENT, start, p - start);
       continue;
     }
 

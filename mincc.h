@@ -24,6 +24,16 @@ Token *tokenize(char *p);
 
 
 /* parse.c */
+typedef struct Var Var;
+struct Var {
+  Var *next;
+  char *name;
+  int len;
+
+  // offset from RBP
+  int offset;
+};
+
 typedef enum {
   ND_NUM,       // integer
   ND_ADD,       // +
@@ -49,11 +59,16 @@ struct Node {
   int val;
 
   // ND_VAR
-  char name;
+  Var *var;
 };
 
-Node *parse(Token *tok);
+typedef struct Function {
+  Node *body;
+  Var *lvars;
+} Function;
+
+Function *parse(Token *tok);
 
 
 /* codegen.c */
-void codegen(Node *node);
+void codegen(Function *prog);

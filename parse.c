@@ -1,8 +1,31 @@
 #include "mincc.h"
 
+// local variables
+Var *lvars;
+
 _Bool equal(Token *tok, char *str) {
   return tok->len == strlen(str) &&
     strncmp(tok->loc, str, tok->len) == 0;
+}
+
+Var *find_lvar(char *name, int len) {
+  for (Var *v = lvars; v; v = v->next)
+    if (len == v->len && strncmp(name, v->name, len) == 0)
+      return v;
+
+  return NULL;
+}
+
+Var *new_var(char *name, int len) {
+  Var *var = calloc(1, sizeof(Var));
+  var->name = name;
+  var->len = len;
+
+  // List it in lvars.
+  var->next = lvars;
+  lvars = var;
+
+  return var;
 }
 
 Node *new_node(NodeKind kind) {
@@ -151,8 +174,13 @@ Node *primary(Token **rest, Token *tok) {
   }
 
   if (tok->kind == TK_IDENT) {
+    // Find or create lvar.
+    Var *var = find_lvar(tok->loc, tok->len);
+    if (!var)
+      var = new_var(tok->loc, tok->len);
+
     Node *node = new_node(ND_VAR);
-    node->name = *tok->loc;
+    node->var = var;
     *rest = tok->next;
     return node;
   }
@@ -161,12 +189,22 @@ Node *primary(Token **rest, Token *tok) {
 }
 
 // program = stmt*
-Node *parse(Token *tok) {
+Function *parse(Token *tok) {
   Node head;
   Node *cur = &head;
 
   for (; tok->kind != TK_EOF;)
     cur = cur->next = stmt(&tok, tok);
 
-  return head.next;
+  // Assign offsets to local variables.
+  int offset = 0;
+  for (Var *v = lvars; v; v = v->next) {
+    offset = offset + 8;
+    v->offset = offset;
+  }
+
+  Function *prog = calloc(1, sizeof(Function));
+  prog->body = head.next;
+  prog->lvars = lvars;
+  return prog;
 }
