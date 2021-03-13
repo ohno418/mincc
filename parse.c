@@ -34,6 +34,13 @@ Node *new_node(NodeKind kind) {
   return node;
 }
 
+Node *new_binary(NodeKind kind, Node *lhs, Node *rhs) {
+  Node *node = new_node(kind);
+  node->lhs = lhs;
+  node->rhs = rhs;
+  return node;
+}
+
 Node *new_unary(NodeKind kind, Node *lhs) {
   Node *node = new_node(kind);
   node->lhs = lhs;
@@ -102,12 +109,8 @@ Node *expr(Token **rest, Token *tok) {
 Node *assign(Token **rest, Token *tok) {
   Node *node = equality(&tok, tok);
 
-  if (equal(tok, "=")) {
-    Node *binary = new_node(ND_ASSIGN);
-    binary->lhs = node;
-    binary->rhs = equality(&tok, tok->next);
-    node = binary;
-  }
+  if (equal(tok, "="))
+    node = new_binary(ND_ASSIGN, node, equality(&tok, tok->next));
 
   *rest = tok;
   return node;
@@ -117,19 +120,11 @@ Node *assign(Token **rest, Token *tok) {
 Node *equality(Token **rest, Token *tok) {
   Node *node = add(&tok, tok);
 
-  if (equal(tok, "==")) {
-    Node *binary = new_node(ND_EQ);
-    binary->lhs = node;
-    binary->rhs = add(&tok, tok->next);
-    node = binary;
-  }
+  if (equal(tok, "=="))
+    node = new_binary(ND_EQ, node, add(&tok, tok->next));
 
-  if (equal(tok, "!=")) {
-    Node *binary = new_node(ND_NEQ);
-    binary->lhs = node;
-    binary->rhs = add(&tok, tok->next);
-    node = binary;
-  }
+  if (equal(tok, "!="))
+    node = new_binary(ND_NEQ, node, add(&tok, tok->next));
 
   *rest = tok;
   return node;
@@ -141,18 +136,12 @@ Node *add(Token **rest, Token *tok) {
 
   for (;;) {
     if (equal(tok, "+")) {
-      Node *binary = new_node(ND_ADD);
-      binary->lhs = node;
-      binary->rhs = mul(&tok, tok->next);
-      node = binary;
+      node = new_binary(ND_ADD, node, mul(&tok, tok->next));
       continue;
     }
 
     if (equal(tok, "-")) {
-      Node *binary = new_node(ND_SUB);
-      binary->lhs = node;
-      binary->rhs = mul(&tok, tok->next);
-      node = binary;
+      node = new_binary(ND_SUB, node, mul(&tok, tok->next));
       continue;
     }
 
@@ -169,18 +158,12 @@ Node *mul(Token **rest, Token *tok) {
 
   for (;;) {
     if (equal(tok, "*")) {
-      Node *binary = new_node(ND_MUL);
-      binary->lhs = node;
-      binary->rhs = primary(&tok, tok->next);
-      node = binary;
+      node = new_binary(ND_MUL, node, primary(&tok, tok->next));
       continue;
     }
 
     if (equal(tok, "/")) {
-      Node *binary = new_node(ND_DIV);
-      binary->lhs = node;
-      binary->rhs = primary(&tok, tok->next);
-      node = binary;
+      node = new_binary(ND_DIV, node, primary(&tok, tok->next));
       continue;
     }
 
