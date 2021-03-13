@@ -41,6 +41,7 @@ Node *new_unary(NodeKind kind, Node *lhs) {
 }
 
 Node *stmt(Token **rest, Token *tok);
+Node *compound_stmt(Token **rest, Token *tok);
 Node *expr_stmt(Token **rest, Token *tok);
 Node *expr(Token **rest, Token *tok);
 Node *assign(Token **rest, Token *tok);
@@ -50,6 +51,7 @@ Node *mul(Token **rest, Token *tok);
 Node *primary(Token **rest, Token *tok);
 
 // stmt = "return" expr ";"
+//      | "{" compound_stmt
 //      | expr_stmt
 Node *stmt(Token **rest, Token *tok) {
   if (equal(tok, "return")) {
@@ -60,7 +62,23 @@ Node *stmt(Token **rest, Token *tok) {
     return new_unary(ND_RETURN, node);
   }
 
+  if (equal(tok, "{"))
+    return compound_stmt(rest, tok->next);
+
   return expr_stmt(rest, tok);
+}
+
+// compound_stmt = stmt* "}"
+Node *compound_stmt(Token **rest, Token *tok) {
+  Node head;
+  Node *cur = &head;
+  for (; !equal(tok, "}");)
+    cur = cur->next = stmt(&tok, tok);
+
+  Node *node = new_node(ND_BLOCK);
+  node->body = head.next;
+  *rest = tok->next;
+  return node;
 }
 
 // expr_stmt = expr ";"

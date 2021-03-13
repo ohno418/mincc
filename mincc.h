@@ -46,6 +46,7 @@ typedef enum {
   ND_NEQ,       // !=
   ND_RETURN,    // "return"
   ND_EXPR_STMT, // expression statement
+  ND_BLOCK,     // { ... }
   ND_ASSIGN,    // assignment
   ND_VAR,       // variable
 } NodeKind;
@@ -63,6 +64,9 @@ struct Node {
 
   // ND_VAR
   Var *var;
+
+  // ND_BLOCK
+  Node *body;
 };
 
 typedef struct Function {

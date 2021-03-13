@@ -61,4 +61,9 @@ assert 'foo=12; faa=34; return foo+faa;' 46
 
 assert '1; return 2; return 3;' 2
 
+assert '{ return 42; }' 42
+assert '{ foo=12; return foo; }' 12
+assert '{ foo=12; faa=34; return foo+faa; }' 46
+assert '{ 1; return 2; return 3; }' 2
+
 echo OK
