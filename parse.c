@@ -3,7 +3,7 @@
 // local variables
 Var *lvars;
 
-_Bool equal(Token *tok, char *str) {
+bool equal(Token *tok, char *str) {
   return tok->len == strlen(str) &&
     strncmp(tok->loc, str, tok->len) == 0;
 }
@@ -49,8 +49,17 @@ Node *add(Token **rest, Token *tok);
 Node *mul(Token **rest, Token *tok);
 Node *primary(Token **rest, Token *tok);
 
-// stmt = expr_stmt
+// stmt = "return" expr ";"
+//      | expr_stmt
 Node *stmt(Token **rest, Token *tok) {
+  if (equal(tok, "return")) {
+    Node *node = expr(&tok, tok->next);
+    if (!equal(tok, ";"))
+      error("expected \";\"");
+    *rest = tok->next;
+    return new_unary(ND_RETURN, node);
+  }
+
   return expr_stmt(rest, tok);
 }
 

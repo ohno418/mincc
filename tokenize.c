@@ -5,6 +5,12 @@ void error(char *msg) {
   exit(1);
 }
 
+void convert_keywords(Token *tok) {
+  for (Token *t = tok; t; t = t->next)
+    if (t->kind == TK_IDENT && equal(tok, "return"))
+      t->kind = TK_KEYWORD;
+}
+
 Token *new_token(TokenKind kind, char *loc, int len) {
   Token *tok = calloc(1, sizeof(Token));
   tok->kind = kind;
@@ -18,11 +24,13 @@ Token *tokenize(char *p) {
   Token *cur = &head;
 
   for (; *p;) {
+    // Skip spaces
     if (isspace(*p)) {
       p = p + 1;
       continue;
     }
 
+    // number
     if (isdigit(*p)) {
       char *start = p;
       for (; isdigit(*p); p = p + 1);
@@ -30,6 +38,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
+    // puctuator
     if (ispunct(*p)) {
       char *start = p;
       p = p + 1;
@@ -38,6 +47,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
+    // identifier or keyword
     if (isalpha(*p)) {
       char *start = p;
       for (; isalpha(*p); p = p + 1);
@@ -49,5 +59,6 @@ Token *tokenize(char *p) {
   }
 
   cur->next = new_token(TK_EOF, p, 0);
+  convert_keywords(head.next);
   return head.next;
 }

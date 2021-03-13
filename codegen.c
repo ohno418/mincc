@@ -91,6 +91,13 @@ void gen_stmt(Node *node) {
     return;
   }
 
+  if (node->kind == ND_RETURN) {
+    gen_expr(node->lhs);
+    printf("  pop rax\n");
+    printf("  jmp .L.return\n");
+    return;
+  }
+
   error("statment expected");
 }
 
@@ -112,6 +119,7 @@ void codegen(Function *prog) {
     gen_stmt(n);
 
   // epilogue
+  printf(".L.return:\n");
   printf("  mov rsp, rbp\n");
   printf("  pop rbp\n");
   printf("  ret\n");

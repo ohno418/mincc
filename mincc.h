@@ -1,14 +1,16 @@
 #include <ctype.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 /* tokenize.c */
 typedef enum {
-  TK_NUM,   // number
-  TK_IDENT, // identifier
-  TK_PUNCT, // puctuatos
-  TK_EOF,   // end-of-file
+  TK_NUM,     // number
+  TK_PUNCT,   // puctuatos
+  TK_IDENT,   // identifier
+  TK_KEYWORD, // keyword
+  TK_EOF,     // end-of-file
 } TokenKind;
 
 typedef struct Token Token;
@@ -42,6 +44,7 @@ typedef enum {
   ND_DIV,       // /
   ND_EQ,        // ==
   ND_NEQ,       // !=
+  ND_RETURN,    // "return"
   ND_EXPR_STMT, // expression statement
   ND_ASSIGN,    // assignment
   ND_VAR,       // variable
@@ -67,6 +70,7 @@ typedef struct Function {
   Var *lvars;
 } Function;
 
+bool equal(Token *tok, char *str);
 Function *parse(Token *tok);
 
 
