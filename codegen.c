@@ -107,6 +107,10 @@ void gen_stmt(Node *node) {
   error("statment expected");
 }
 
+int align_to(int n, int align) {
+  return (n + align - 1) / align * align;
+}
+
 void codegen(Function *prog) {
   printf("  .intel_syntax noprefix\n");
   printf("  .globl main\n");
@@ -115,6 +119,7 @@ void codegen(Function *prog) {
   int stack_size = 0;
   for (Var *v = prog->lvars; v; v = v->next)
     stack_size = stack_size + v->offset;
+  stack_size = align_to(stack_size, 16);
 
   // prologue
   printf("  push rbp\n");
