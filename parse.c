@@ -88,14 +88,17 @@ Node *compound_stmt(Token **rest, Token *tok) {
   return node;
 }
 
-// expr_stmt = expr ";"
+// expr_stmt = expr? ";"
 Node *expr_stmt(Token **rest, Token *tok) {
-  Node *node = expr(&tok, tok);
+  // null statement
+  if (strncmp(tok->loc, ";", 1) == 0) {
+    *rest = tok->next;
+    return new_node(ND_BLOCK);
+  }
 
+  Node *node = new_unary(ND_EXPR_STMT, expr(&tok, tok));
   if (!equal(tok, ";"))
     error("expected \";\"");
-
-  node = new_unary(ND_EXPR_STMT, node);
   *rest = tok->next;
   return node;
 }
