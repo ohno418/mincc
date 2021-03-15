@@ -107,10 +107,14 @@ void gen_stmt(Node *node) {
     gen_expr(node->cond);
     printf("  pop rax\n");
     printf("  cmp rax, 0\n");
-    printf("  je .L.end.%d\n", cnt);
+    printf("  je .L.else.%d\n", cnt);
 
-    printf(".L.then.%d:\n", cnt);
     gen_stmt(node->then);
+    printf("  jmp .L.end.%d\n", cnt);
+
+    printf(".L.else.%d:\n", cnt);
+    if (node->els)
+      gen_stmt(node->els);
 
     printf(".L.end.%d:\n", cnt);
     return;

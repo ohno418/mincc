@@ -6,7 +6,7 @@ void error(char *msg) {
 }
 
 bool is_keyword(Token *tok) {
-  return equal(tok, "return") || equal(tok, "if");
+  return equal(tok, "return") || equal(tok, "if") || equal(tok, "else");
 }
 
 void convert_keywords(Token *tok) {
