@@ -95,4 +95,8 @@ assert 'if (0) return 3; else return 4; return 5;' 4
 assert 'if (1) { return 3; } else { return 4; } return 5;' 3
 assert 'if (0) { return 3; } else { return 4; } return 5;' 4
 
+assert 'i=0; for (; i<5; i=i+1) ; return i;' 5
+assert 'i=0; j=1; for (; i<3; i=i+1) j = j * 2; return j;' 8
+assert 'i=0; j=1; for (i=1; i<3; i=i+1) j = j * 2; return j;' 4
+
 echo OK

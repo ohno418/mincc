@@ -60,6 +60,7 @@ Node *primary(Token **rest, Token *tok);
 
 // stmt = "return" expr ";"
 //      | "if" "(" expr ")" stmt ("else" stmt)?
+//      | "for" "(" expr? ";" expr? ";" expr? ")" stmt
 //      | "{" compound_stmt
 //      | expr_stmt
 Node *stmt(Token **rest, Token *tok) {
@@ -82,6 +83,34 @@ Node *stmt(Token **rest, Token *tok) {
     if (equal(tok, "else"))
       node->els = stmt(&tok, tok->next);
     *rest = tok;
+    return node;
+  }
+
+  if (equal(tok, "for")) {
+    Node *node = new_node(ND_FOR);
+    if (!equal(tok->next, "("))
+      error("expected \"(\"");
+    tok = tok->next->next;
+
+    if (!equal(tok, ";"))
+      node->init = expr(&tok, tok);
+    if (!equal(tok, ";"))
+      error("expected \";\"");
+    tok = tok->next;
+
+    if (!equal(tok, ";"))
+      node->cond = expr(&tok, tok);
+    if (!equal(tok, ";"))
+      error("expected \";\"");
+    tok = tok->next;
+
+    if (!equal(tok, ")"))
+      node->inc = expr(&tok, tok);
+    if (!equal(tok, ")"))
+      error("expected \")\"");
+    tok = tok->next;
+
+    node->then = stmt(rest, tok);
     return node;
   }
 

@@ -1,6 +1,6 @@
 #include "mincc.h"
 
-int if_cnt = 0;
+int count = 0;
 
 void gen_addr(Node *node) {
   if (node->kind != ND_VAR)
@@ -109,22 +109,51 @@ void gen_stmt(Node *node) {
   }
 
   if (node->kind == ND_IF) {
-    if_cnt = if_cnt + 1;
-    int cnt = if_cnt;
+    count = count + 1;
+    int c = count;
 
     gen_expr(node->cond);
     printf("  pop rax\n");
     printf("  cmp rax, 0\n");
-    printf("  je .L.else.%d\n", cnt);
+    printf("  je .L.else.%d\n", c);
 
     gen_stmt(node->then);
-    printf("  jmp .L.end.%d\n", cnt);
+    printf("  jmp .L.end.%d\n", c);
 
-    printf(".L.else.%d:\n", cnt);
+    printf(".L.else.%d:\n", c);
     if (node->els)
       gen_stmt(node->els);
 
-    printf(".L.end.%d:\n", cnt);
+    printf(".L.end.%d:\n", c);
+    return;
+  }
+
+  if (node->kind == ND_FOR) {
+    count = count + 1;
+    int c = count;
+
+    if (node->init) {
+      gen_expr(node->init);
+      printf("  pop rax\n");
+    }
+
+    printf(".L.then.%d:\n", c);
+    gen_stmt(node->then);
+
+    if (node->inc) {
+      gen_expr(node->inc);
+      printf("  pop rax\n");
+    }
+
+    if (node->cond) {
+      gen_expr(node->cond);
+      printf("  pop rax\n");
+      printf("  cmp rax, 0\n");
+      printf("  je .L.end.%d\n", c);
+    }
+
+    printf("  jmp .L.then.%d\n", c);
+    printf(".L.end.%d:\n", c);
     return;
   }
 
