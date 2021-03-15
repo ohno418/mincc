@@ -68,4 +68,17 @@ assert '{ 1; return 2; return 3; }' 2
 
 assert ';; return 5;' 5
 
+assert 'if (1) return 3; return 4;' 3
+assert 'if (0) return 3; return 4;' 4
+assert 'if (1) { return 3; } return 4;' 3
+assert 'if (0) { return 3; } return 4;' 4
+assert 'if (1-1) return 3; return 4;' 4
+assert 'if (3-2) return 3; return 4;' 3
+assert 'if (1) { if (1) return 42; return 12; } return 2;' 42
+assert 'if (1) { if (0) return 42; return 12; } return 2;' 12
+assert 'if (0) { if (1) return 42; return 12; } return 2;' 2
+assert 'if (1) { if (1) return 42; return 12; } if (0) return 123; return 2;' 42
+assert 'if (0) { if (1) return 42; return 12; } if (1) return 123; return 2;' 123
+assert 'if (0) { if (1) return 42; return 12; } if (0) return 123; return 2;' 2
+
 echo OK

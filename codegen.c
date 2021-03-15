@@ -1,5 +1,7 @@
 #include "mincc.h"
 
+int if_cnt = 0;
+
 void gen_addr(Node *node) {
   if (node->kind != ND_VAR)
     error("expected a variable node");
@@ -95,6 +97,22 @@ void gen_stmt(Node *node) {
     gen_expr(node->lhs);
     printf("  pop rax\n");
     printf("  jmp .L.return\n");
+    return;
+  }
+
+  if (node->kind == ND_IF) {
+    if_cnt = if_cnt + 1;
+    int cnt = if_cnt;
+
+    gen_expr(node->cond);
+    printf("  pop rax\n");
+    printf("  cmp rax, 0\n");
+    printf("  je .L.end.%d\n", cnt);
+
+    printf(".L.then.%d:\n", cnt);
+    gen_stmt(node->then);
+
+    printf(".L.end.%d:\n", cnt);
     return;
   }
 

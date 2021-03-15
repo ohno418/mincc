@@ -45,6 +45,7 @@ typedef enum {
   ND_EQ,        // ==
   ND_NEQ,       // !=
   ND_RETURN,    // "return"
+  ND_IF,        // "if"
   ND_EXPR_STMT, // expression statement
   ND_BLOCK,     // { ... }
   ND_ASSIGN,    // assignment
@@ -62,11 +63,15 @@ struct Node {
   // ND_NUM
   int val;
 
-  // ND_VAR
-  Var *var;
+  // ND_IF
+  Node *cond;
+  Node *then;
 
   // ND_BLOCK
   Node *body;
+
+  // ND_VAR
+  Var *var;
 };
 
 typedef struct Function {

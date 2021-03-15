@@ -5,9 +5,13 @@ void error(char *msg) {
   exit(1);
 }
 
+bool is_keyword(Token *tok) {
+  return equal(tok, "return") || equal(tok, "if");
+}
+
 void convert_keywords(Token *tok) {
   for (Token *t = tok; t; t = t->next)
-    if (t->kind == TK_IDENT && equal(tok, "return"))
+    if (t->kind == TK_IDENT && is_keyword(tok))
       t->kind = TK_KEYWORD;
 }
 

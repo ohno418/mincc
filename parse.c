@@ -58,6 +58,7 @@ Node *mul(Token **rest, Token *tok);
 Node *primary(Token **rest, Token *tok);
 
 // stmt = "return" expr ";"
+//      | "if" "(" expr ")" stmt
 //      | "{" compound_stmt
 //      | expr_stmt
 Node *stmt(Token **rest, Token *tok) {
@@ -67,6 +68,17 @@ Node *stmt(Token **rest, Token *tok) {
       error("expected \";\"");
     *rest = tok->next;
     return new_unary(ND_RETURN, node);
+  }
+
+  if (equal(tok, "if")) {
+    Node *node = new_node(ND_IF);
+    if (!equal(tok->next, "("))
+      error("expected \"(\"");
+    node->cond = expr(&tok, tok->next->next);
+    if (!equal(tok, ")"))
+      error("expected \")\"");
+    node->then = stmt(rest, tok->next);
+    return node;
   }
 
   if (equal(tok, "{"))
