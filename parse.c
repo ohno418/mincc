@@ -107,7 +107,7 @@ Node *compound_stmt(Token **rest, Token *tok) {
 // expr_stmt = expr? ";"
 Node *expr_stmt(Token **rest, Token *tok) {
   // null statement
-  if (strncmp(tok->loc, ";", 1) == 0) {
+  if (equal(tok, ";")) {
     *rest = tok->next;
     return new_node(ND_BLOCK);
   }

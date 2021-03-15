@@ -5,6 +5,10 @@ void error(char *msg) {
   exit(1);
 }
 
+bool is_two_letter_punct(char *p) {
+  return strncmp(p, "==", 2) == 0 || strncmp(p, "!=", 2) == 0;
+}
+
 bool is_keyword(Token *tok) {
   return equal(tok, "return") || equal(tok, "if") || equal(tok, "else");
 }
@@ -44,10 +48,13 @@ Token *tokenize(char *p) {
 
     // puctuator
     if (ispunct(*p)) {
-      char *start = p;
-      p = p + 1;
-      for (; ispunct(*p); p = p + 1);
-      cur = cur->next = new_token(TK_PUNCT, start, p - start);
+      if (is_two_letter_punct(p)) {
+        cur = cur->next = new_token(TK_PUNCT, p, 2);
+        p = p + 2;
+      } else {
+        cur = cur->next = new_token(TK_PUNCT, p, 1);
+        p = p + 1;
+      }
       continue;
     }
 
