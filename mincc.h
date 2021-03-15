@@ -44,6 +44,7 @@ typedef enum {
   ND_DIV,       // /
   ND_EQ,        // ==
   ND_NEQ,       // !=
+  ND_LT,        // <
   ND_RETURN,    // "return"
   ND_IF,        // "if"
   ND_EXPR_STMT, // expression statement

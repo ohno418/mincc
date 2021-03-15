@@ -49,6 +49,15 @@ assert 'return 3==3;' 1
 assert 'return 3!=4;' 1
 assert 'return 3!=3;' 0
 
+assert 'return 3<4;' 1
+assert 'return 3<5;' 1
+assert 'return 3<2;' 0
+assert 'return 3<3;' 0
+assert 'return 3>4;' 0
+assert 'return 3>5;' 0
+assert 'return 3>2;' 1
+assert 'return 3>3;' 0
+
 assert '1; 2; return 3;' 3
 
 assert 'a=42; return a;' 42

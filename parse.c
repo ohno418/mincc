@@ -53,6 +53,7 @@ Node *expr_stmt(Token **rest, Token *tok);
 Node *expr(Token **rest, Token *tok);
 Node *assign(Token **rest, Token *tok);
 Node *equality(Token **rest, Token *tok);
+Node *relational(Token **rest, Token *tok);
 Node *add(Token **rest, Token *tok);
 Node *mul(Token **rest, Token *tok);
 Node *primary(Token **rest, Token *tok);
@@ -134,15 +135,29 @@ Node *assign(Token **rest, Token *tok) {
   return node;
 }
 
-// equality = add ("==" add | "!=" add)?
+// equality = relational ("==" relational | "!=" relational)?
 Node *equality(Token **rest, Token *tok) {
-  Node *node = add(&tok, tok);
+  Node *node = relational(&tok, tok);
 
   if (equal(tok, "=="))
-    node = new_binary(ND_EQ, node, add(&tok, tok->next));
+    node = new_binary(ND_EQ, node, relational(&tok, tok->next));
 
   if (equal(tok, "!="))
-    node = new_binary(ND_NEQ, node, add(&tok, tok->next));
+    node = new_binary(ND_NEQ, node, relational(&tok, tok->next));
+
+  *rest = tok;
+  return node;
+}
+
+// relational = add ("<" add | ">" add)?
+Node *relational(Token **rest, Token *tok) {
+  Node *node = add(&tok, tok);
+
+  if (equal(tok, "<"))
+    node = new_binary(ND_LT, node, add(&tok, tok->next));
+
+  if (equal(tok, ">"))
+    node = new_binary(ND_LT, add(&tok, tok->next), node);
 
   *rest = tok;
   return node;
