@@ -1,5 +1,7 @@
 #include "mincc.h"
 
+Function *current_fn;
+
 int count = 0;
 
 void gen_addr(Node *node) {
@@ -104,7 +106,7 @@ void gen_stmt(Node *node) {
   if (node->kind == ND_RETURN) {
     gen_expr(node->lhs);
     printf("  pop rax\n");
-    printf("  jmp .L.return\n");
+    printf("  jmp .L.return.%s\n", current_fn->name);
     return;
   }
 
@@ -172,25 +174,30 @@ int align_to(int n, int align) {
 
 void codegen(Function *prog) {
   printf("  .intel_syntax noprefix\n");
-  printf("  .globl main\n");
-  printf("main:\n");
 
-  int stack_size = 0;
-  for (Var *v = prog->lvars; v; v = v->next)
-    stack_size = stack_size + v->offset;
-  stack_size = align_to(stack_size, 16);
+  for (Function *fn = prog; fn; fn = fn->next) {
+    current_fn = fn;
 
-  // prologue
-  printf("  push rbp\n");
-  printf("  mov rbp, rsp\n");
-  printf("  sub rsp, %d\n", stack_size);
+    int stack_size = 0;
+    for (Var *v = fn->lvars; v; v = v->next)
+      stack_size = stack_size + v->offset;
+    stack_size = align_to(stack_size, 16);
 
-  for (Node *n = prog->body; n; n = n->next)
-    gen_stmt(n);
+    printf("  .globl %s\n", fn->name);
+    printf("%s:\n", fn->name);
 
-  // epilogue
-  printf(".L.return:\n");
-  printf("  mov rsp, rbp\n");
-  printf("  pop rbp\n");
-  printf("  ret\n");
+    // prologue
+    printf("  push rbp\n");
+    printf("  mov rbp, rsp\n");
+    printf("  sub rsp, %d\n", stack_size);
+
+    for (Node *n = fn->body; n; n = n->next)
+      gen_stmt(n);
+
+    // epilogue
+    printf(".L.return.%s:\n", fn->name);
+    printf("  mov rsp, rbp\n");
+    printf("  pop rbp\n");
+    printf("  ret\n");
+  }
 }

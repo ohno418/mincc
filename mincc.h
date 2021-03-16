@@ -83,6 +83,7 @@ struct Node {
 
 typedef struct Function Function;
 struct Function {
+  Function *next;
   char *name;
   Node *body;
   Var *lvars;

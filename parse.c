@@ -261,7 +261,9 @@ Node *primary(Token **rest, Token *tok) {
 }
 
 // function = func-name "(" ")" "{" compound_stmt
-Function *function(Token *tok) {
+Function *function(Token **rest, Token *tok) {
+  lvars = NULL;
+
   Function *func = calloc(1, sizeof(Function));
   func->name = strndup(tok->loc, tok->len);
 
@@ -273,7 +275,7 @@ Function *function(Token *tok) {
     error("expected \"{\"");
   tok = tok->next->next->next->next;
 
-  func->body = compound_stmt(&tok, tok);
+  func->body = compound_stmt(rest, tok);
   func->lvars = lvars;
 
   // Assign offsets to local variables.
@@ -283,11 +285,13 @@ Function *function(Token *tok) {
     v->offset = offset;
   }
 
-  if (tok->kind != TK_EOF)
-    error("extra token");
   return func;
 }
 
 Function *parse(Token *tok) {
-  return function(tok);
+  Function head;
+  Function *cur = &head;
+  for (; tok->kind != TK_EOF;)
+    cur = cur->next = function(&tok, tok);
+  return head.next;
 }
