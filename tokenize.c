@@ -9,6 +9,10 @@ bool is_two_letter_punct(char *p) {
   return strncmp(p, "==", 2) == 0 || strncmp(p, "!=", 2) == 0;
 }
 
+bool is_ident_char(char c) {
+  return isalpha(c) || c == '_' || isdigit(c);
+}
+
 bool is_keyword(Token *tok) {
   return equal(tok, "return") ||
     equal(tok, "if") || equal(tok, "else") ||
@@ -63,7 +67,7 @@ Token *tokenize(char *p) {
     // identifier or keyword
     if (isalpha(*p)) {
       char *start = p;
-      for (; isalpha(*p); p = p + 1);
+      for (; is_ident_char(*p); p = p + 1);
       cur = cur->next = new_token(TK_IDENT, start, p - start);
       continue;
     }
