@@ -260,13 +260,21 @@ Node *primary(Token **rest, Token *tok) {
   error("unknown primary");
 }
 
-// program = stmt*
-Function *parse(Token *tok) {
-  Node head;
-  Node *cur = &head;
+// function = func-name "(" ")" "{" compound_stmt
+Function *function(Token *tok) {
+  Function *func = calloc(1, sizeof(Function));
+  func->name = strndup(tok->loc, tok->len);
 
-  for (; tok->kind != TK_EOF;)
-    cur = cur->next = stmt(&tok, tok);
+  if (!equal(tok->next, "("))
+    error("expected \"(\"");
+  if (!equal(tok->next->next, ")"))
+    error("expected \")\"");
+  if (!equal(tok->next->next->next, "{"))
+    error("expected \"{\"");
+  tok = tok->next->next->next->next;
+
+  func->body = compound_stmt(&tok, tok);
+  func->lvars = lvars;
 
   // Assign offsets to local variables.
   int offset = 0;
@@ -275,8 +283,11 @@ Function *parse(Token *tok) {
     v->offset = offset;
   }
 
-  Function *prog = calloc(1, sizeof(Function));
-  prog->body = head.next;
-  prog->lvars = lvars;
-  return prog;
+  if (tok->kind != TK_EOF)
+    error("extra token");
+  return func;
+}
+
+Function *parse(Token *tok) {
+  return function(tok);
 }
