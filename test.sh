@@ -99,6 +99,6 @@ assert 'main() { i=0; for (; i<5; i=i+1) ; return i; }' 5
 assert 'main() { i=0; j=1; for (; i<3; i=i+1) j = j * 2; return j; }' 8
 assert 'main() { i=0; j=1; for (i=1; i<3; i=i+1) j = j * 2; return j; }' 4
 
-assert 'ret3() { return 3; } main() { return 42; }' 42
+assert 'ret3() { return 3; } main() { return ret3(); }' 3
 
 echo OK

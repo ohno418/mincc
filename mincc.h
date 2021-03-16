@@ -51,6 +51,7 @@ typedef enum {
   ND_FOR,       // "for"
   ND_EXPR_STMT, // expression statement
   ND_BLOCK,     // { ... }
+  ND_FUNCALL,   // function call
   ND_ASSIGN,    // assignment
   ND_VAR,       // variable
 } NodeKind;
@@ -76,6 +77,9 @@ struct Node {
 
   // ND_BLOCK
   Node *body;
+
+  // funcation call
+  char *funcname;
 
   // ND_VAR
   Var *var;

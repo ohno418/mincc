@@ -236,7 +236,8 @@ Node *mul(Token **rest, Token *tok) {
   return node;
 }
 
-// primary = num | ident
+// primary = num
+//         | ident ("(" ")")?
 Node *primary(Token **rest, Token *tok) {
   if (tok->kind == TK_NUM) {
     Node *node = new_node(ND_NUM);
@@ -246,7 +247,18 @@ Node *primary(Token **rest, Token *tok) {
   }
 
   if (tok->kind == TK_IDENT) {
-    // Find or create lvar.
+    // function call
+    if (equal(tok->next, "(")) {
+      if (!equal(tok->next->next, ")"))
+        error("expected \")\"");
+
+      Node *node = new_node(ND_FUNCALL);
+      node->funcname = strndup(tok->loc, tok->len);
+      *rest = tok->next->next->next;
+      return node;
+    }
+
+    // variable
     Var *var = find_lvar(tok->loc, tok->len);
     if (!var)
       var = new_var(tok->loc, tok->len);

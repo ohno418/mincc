@@ -37,6 +37,12 @@ void gen_expr(Node *node) {
     return;
   }
 
+  if (node->kind == ND_FUNCALL) {
+    printf("  call %s\n", node->funcname);
+    printf("  push rax\n");
+    return;
+  }
+
   // lhs on RAX
   // rhs on RDI
   gen_expr(node->lhs);
