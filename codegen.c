@@ -186,7 +186,8 @@ void codegen(Function *prog) {
 
     int stack_size = 0;
     for (Var *v = fn->lvars; v; v = v->next)
-      stack_size = stack_size + v->offset;
+      if (stack_size < v->offset)
+        stack_size = v->offset;
     stack_size = align_to(stack_size, 16);
 
     printf("  .globl %s\n", fn->name);
