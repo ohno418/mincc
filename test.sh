@@ -103,4 +103,6 @@ assert 'int ret3() { return 3; } int main() { return ret3(); }' 3
 assert 'int add2(x, y) { return x+y; } int main() { return add2(4,7); }' 11
 assert 'int sub2(x, y) { return x-y; } int main() { return sub2(7,4); }' 3
 
+assert 'int fib(n) { if (n==0) return n; if (n==1) return n; return fib(n-2) + fib(n-1); } int main() { return fib(10); }' 55
+
 echo OK
