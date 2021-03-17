@@ -53,6 +53,19 @@ void gen_expr(Node *node) {
     return;
   }
 
+  if (node->kind == ND_ADDR) {
+    gen_addr(node->lhs);
+    return;
+  }
+
+  if (node->kind == ND_DEREF) {
+    gen_expr(node->lhs);
+    printf("  pop rax\n");
+    printf("  mov rax, [rax]\n");
+    printf("  push rax\n");
+    return;
+  }
+
   if (node->kind == ND_FUNCALL) {
     int i = 0;
     for (Node *arg = node->args; arg; arg = arg->next) {

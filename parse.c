@@ -56,6 +56,7 @@ Node *equality(Token **rest, Token *tok);
 Node *relational(Token **rest, Token *tok);
 Node *add(Token **rest, Token *tok);
 Node *mul(Token **rest, Token *tok);
+Node *unary(Token **rest, Token *tok);
 Node *primary(Token **rest, Token *tok);
 
 // stmt = "return" expr ";"
@@ -214,18 +215,18 @@ Node *add(Token **rest, Token *tok) {
   return node;
 }
 
-// mul = primary ("*" primary | "/" primary)*
+// mul = unary ("*" unary | "/" unary)*
 Node *mul(Token **rest, Token *tok) {
-  Node *node = primary(&tok, tok);
+  Node *node = unary(&tok, tok);
 
   for (;;) {
     if (equal(tok, "*")) {
-      node = new_binary(ND_MUL, node, primary(&tok, tok->next));
+      node = new_binary(ND_MUL, node, unary(&tok, tok->next));
       continue;
     }
 
     if (equal(tok, "/")) {
-      node = new_binary(ND_DIV, node, primary(&tok, tok->next));
+      node = new_binary(ND_DIV, node, unary(&tok, tok->next));
       continue;
     }
 
@@ -234,6 +235,18 @@ Node *mul(Token **rest, Token *tok) {
 
   *rest = tok;
   return node;
+}
+
+// unary = ("&" | "*") unary
+//       | primary
+Node *unary(Token **rest, Token *tok) {
+  if (equal(tok, "&"))
+    return new_unary(ND_ADDR, unary(rest, tok->next));
+
+  if (equal(tok, "*"))
+    return new_unary(ND_DEREF, unary(rest, tok->next));
+
+  return primary(rest, tok);
 }
 
 // primary = num

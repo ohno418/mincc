@@ -53,6 +53,8 @@ typedef enum {
   ND_BLOCK,     // { ... }
   ND_FUNCALL,   // function call
   ND_ASSIGN,    // assignment
+  ND_ADDR,      // &
+  ND_DEREF,     // *
   ND_VAR,       // variable
 } NodeKind;
 

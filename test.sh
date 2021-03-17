@@ -102,7 +102,8 @@ assert 'int main() { i=0; j=1; for (i=1; i<3; i=i+1) j = j * 2; return j; }' 4
 assert 'int ret3() { return 3; } int main() { return ret3(); }' 3
 assert 'int add2(x, y) { return x+y; } int main() { return add2(4,7); }' 11
 assert 'int sub2(x, y) { return x-y; } int main() { return sub2(7,4); }' 3
-
 assert 'int fib(n) { if (n==0) return n; if (n==1) return n; return fib(n-2) + fib(n-1); } int main() { return fib(10); }' 55
+
+assert 'int main() { a=3; p=&a; return *p; }' 3
 
 echo OK
