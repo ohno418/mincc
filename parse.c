@@ -251,6 +251,7 @@ Node *unary(Token **rest, Token *tok) {
 
 // primary = num
 //         | ident ("(" args ")")?
+//         | "(" expr ")"
 // args = expr ("," expr)*
 Node *primary(Token **rest, Token *tok) {
   if (tok->kind == TK_NUM) {
@@ -292,6 +293,14 @@ Node *primary(Token **rest, Token *tok) {
 
     Node *node = new_node(ND_VAR);
     node->var = var;
+    *rest = tok->next;
+    return node;
+  }
+
+  if (equal(tok, "(")) {
+    Node *node = expr(&tok, tok->next);
+    if (!equal(tok, ")"))
+      error("expected \")\"");
     *rest = tok->next;
     return node;
   }
