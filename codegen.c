@@ -20,13 +20,22 @@ char *get_reg(int idx) {
   error("cannot handle over 6 arguments");
 }
 
-void gen_addr(Node *node) {
-  if (node->kind != ND_VAR)
-    error("expected a variable node");
+void gen_expr(Node *node);
 
-  printf("  mov rax, rbp\n");
-  printf("  sub rax, %d\n", node->var->offset);
-  printf("  push rax\n");
+void gen_addr(Node *node) {
+  if (node->kind == ND_VAR) {
+    printf("  mov rax, rbp\n");
+    printf("  sub rax, %d\n", node->var->offset);
+    printf("  push rax\n");
+    return;
+  }
+
+  if (node->kind == ND_DEREF) {
+    gen_expr(node->lhs);
+    return;
+  }
+
+  error("not a lvar");
 }
 
 void gen_expr(Node *node) {

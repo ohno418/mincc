@@ -105,5 +105,8 @@ assert 'int sub2(x, y) { return x-y; } int main() { return sub2(7,4); }' 3
 assert 'int fib(n) { if (n==0) return n; if (n==1) return n; return fib(n-2) + fib(n-1); } int main() { return fib(10); }' 55
 
 assert 'int main() { a=3; p=&a; return *p; }' 3
+assert 'int main() { a=4; return *&a; }' 4
+assert 'int main() { a=5; b=&a; c=&b; return **c; }' 5
+assert 'int main() { a=6; b=&a; *b=7; return a; }' 7
 
 echo OK
