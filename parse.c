@@ -286,12 +286,17 @@ Node *primary(Token **rest, Token *tok) {
   error("unknown primary");
 }
 
-// function = func_name "(" func_params? ")" "{" compound_stmt
+// function = "int" func_name "(" func_params? ")" "{" compound_stmt
 // func_params = ident ("," ident)*
 Function *function(Token **rest, Token *tok) {
   lvars = NULL;
 
   Function *fn = calloc(1, sizeof(Function));
+
+  if (!equal(tok, "int"))
+    error("expected \"int\"");
+  tok = tok->next;
+
   fn->name = strndup(tok->loc, tok->len);
 
   if (!equal(tok->next, "("))
