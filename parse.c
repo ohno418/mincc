@@ -237,7 +237,8 @@ Node *mul(Token **rest, Token *tok) {
 }
 
 // primary = num
-//         | ident ("(" ")")?
+//         | ident ("(" args ")")?
+// args = expr ("," expr)*
 Node *primary(Token **rest, Token *tok) {
   if (tok->kind == TK_NUM) {
     Node *node = new_node(ND_NUM);
@@ -249,12 +250,25 @@ Node *primary(Token **rest, Token *tok) {
   if (tok->kind == TK_IDENT) {
     // function call
     if (equal(tok->next, "(")) {
-      if (!equal(tok->next->next, ")"))
-        error("expected \")\"");
-
       Node *node = new_node(ND_FUNCALL);
       node->funcname = strndup(tok->loc, tok->len);
-      *rest = tok->next->next->next;
+
+      tok = tok->next->next;
+
+      Node head;
+      Node *cur = &head;
+      for (int i = 0; !equal(tok, ")"); i = i + 1) {
+        if (i != 0) {
+          if (!equal(tok, ","))
+            error("expected \",\"");
+          tok = tok->next;
+        }
+
+        cur = cur->next = expr(&tok, tok);
+      }
+      node->args = head.next;
+
+      *rest = tok->next;
       return node;
     }
 
@@ -272,23 +286,37 @@ Node *primary(Token **rest, Token *tok) {
   error("unknown primary");
 }
 
-// function = func-name "(" ")" "{" compound_stmt
+// function = func_name "(" func_params? ")" "{" compound_stmt
+// func_params = ident ("," ident)*
 Function *function(Token **rest, Token *tok) {
   lvars = NULL;
 
-  Function *func = calloc(1, sizeof(Function));
-  func->name = strndup(tok->loc, tok->len);
+  Function *fn = calloc(1, sizeof(Function));
+  fn->name = strndup(tok->loc, tok->len);
 
   if (!equal(tok->next, "("))
     error("expected \"(\"");
-  if (!equal(tok->next->next, ")"))
-    error("expected \")\"");
-  if (!equal(tok->next->next->next, "{"))
-    error("expected \"{\"");
-  tok = tok->next->next->next->next;
+  tok = tok->next->next;
 
-  func->body = compound_stmt(rest, tok);
-  func->lvars = lvars;
+  // params
+  for (int i = 0; !equal(tok, ")"); i = i + 1) {
+    if (i != 0) {
+      if (!equal(tok, ","))
+        error("expected \",\"");
+      tok = tok->next;
+    }
+
+    new_var(tok->loc, tok->len);
+    tok = tok->next;
+  }
+  fn->params = lvars;
+
+  if (!equal(tok->next, "{"))
+    error("expected \"{\"");
+  tok = tok->next->next;
+
+  fn->body = compound_stmt(rest, tok);
+  fn->lvars = lvars;
 
   // Assign offsets to local variables.
   int offset = 0;
@@ -297,7 +325,7 @@ Function *function(Token **rest, Token *tok) {
     v->offset = offset;
   }
 
-  return func;
+  return fn;
 }
 
 Function *parse(Token *tok) {

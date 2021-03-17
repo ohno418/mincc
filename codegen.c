@@ -4,6 +4,22 @@ Function *current_fn;
 
 int count = 0;
 
+char *get_reg(int idx) {
+  if (idx == 0)
+    return "rdi";
+  if (idx == 1)
+    return "rsi";
+  if (idx == 2)
+    return "rdx";
+  if (idx == 3)
+    return "rcx";
+  if (idx == 4)
+    return "r8";
+  if (idx == 5)
+    return "r9";
+  error("cannot handle over 6 arguments");
+}
+
 void gen_addr(Node *node) {
   if (node->kind != ND_VAR)
     error("expected a variable node");
@@ -38,6 +54,14 @@ void gen_expr(Node *node) {
   }
 
   if (node->kind == ND_FUNCALL) {
+    int i = 0;
+    for (Node *arg = node->args; arg; arg = arg->next) {
+      gen_expr(arg);
+      printf("  pop rax\n");
+      printf("  mov %s, rax\n", get_reg(i));
+      i = i + 1;
+    }
+
     printf("  call %s\n", node->funcname);
     printf("  push rax\n");
     return;
@@ -184,19 +208,38 @@ void codegen(Function *prog) {
   for (Function *fn = prog; fn; fn = fn->next) {
     current_fn = fn;
 
+    printf("  .globl %s\n", fn->name);
+    printf("%s:\n", fn->name);
+
     int stack_size = 0;
     for (Var *v = fn->lvars; v; v = v->next)
       if (stack_size < v->offset)
         stack_size = v->offset;
     stack_size = align_to(stack_size, 16);
 
-    printf("  .globl %s\n", fn->name);
-    printf("%s:\n", fn->name);
-
     // prologue
     printf("  push rbp\n");
     printf("  mov rbp, rsp\n");
     printf("  sub rsp, %d\n", stack_size);
+
+    // Save passed-by-register arguments to the stack
+    if (fn->params) {
+      Var *prev = NULL;
+      Var *next = &((Var){});
+      for (Var *cur = fn->params; next;) {
+        next = cur->next;
+        cur->next = prev;
+        prev = cur;
+        cur = next;
+      }
+      int i = 0;
+      for (Var *p = prev; p; p = p->next) {
+        printf("  mov rax, rbp\n");
+        printf("  sub rax, %d\n", p->offset);
+        printf("  mov [rax], %s\n", get_reg(i));
+        i = i + 1;
+      }
+    }
 
     for (Node *n = fn->body; n; n = n->next)
       gen_stmt(n);

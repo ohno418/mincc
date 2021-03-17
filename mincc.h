@@ -80,6 +80,7 @@ struct Node {
 
   // funcation call
   char *funcname;
+  Node *args;
 
   // ND_VAR
   Var *var;
@@ -89,6 +90,7 @@ typedef struct Function Function;
 struct Function {
   Function *next;
   char *name;
+  Var *params;
   Node *body;
   Var *lvars;
 };

@@ -100,5 +100,7 @@ assert 'main() { i=0; j=1; for (; i<3; i=i+1) j = j * 2; return j; }' 8
 assert 'main() { i=0; j=1; for (i=1; i<3; i=i+1) j = j * 2; return j; }' 4
 
 assert 'ret3() { return 3; } main() { return ret3(); }' 3
+assert 'add2(x, y) { return x+y; } main() { return add2(4,7); }' 11
+assert 'sub2(x, y) { return x-y; } main() { return sub2(7,4); }' 3
 
 echo OK
