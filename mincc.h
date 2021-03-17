@@ -33,7 +33,6 @@ typedef struct Var Var;
 struct Var {
   Var *next;
   char *name;
-  int len;
 
   // offset from RBP
   int offset;

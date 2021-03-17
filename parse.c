@@ -8,18 +8,17 @@ bool equal(Token *tok, char *str) {
     strncmp(tok->loc, str, tok->len) == 0;
 }
 
-Var *find_lvar(char *name, int len) {
+Var *find_lvar(char *name) {
   for (Var *v = lvars; v; v = v->next)
-    if (len == v->len && strncmp(name, v->name, len) == 0)
+    if (strcmp(name, v->name) == 0)
       return v;
 
   return NULL;
 }
 
-Var *new_var(char *name, int len) {
+Var *new_var(char *name) {
   Var *var = calloc(1, sizeof(Var));
   var->name = name;
-  var->len = len;
 
   // List it in lvars.
   var->next = lvars;
@@ -332,9 +331,9 @@ Node *primary(Token **rest, Token *tok) {
     }
 
     // variable
-    Var *var = find_lvar(tok->loc, tok->len);
+    Var *var = find_lvar(strndup(tok->loc, tok->len));
     if (!var)
-      var = new_var(tok->loc, tok->len);
+      var = new_var(strndup(tok->loc, tok->len));
 
     Node *node = new_node(ND_VAR);
     node->var = var;
@@ -378,7 +377,7 @@ Function *function(Token **rest, Token *tok) {
       tok = tok->next;
     }
 
-    new_var(tok->loc, tok->len);
+    new_var(strndup(tok->loc, tok->len));
     tok = tok->next;
   }
   fn->params = lvars;
