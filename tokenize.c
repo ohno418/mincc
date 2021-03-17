@@ -21,7 +21,7 @@ bool is_keyword(Token *tok) {
 
 void convert_keywords(Token *tok) {
   for (Token *t = tok; t; t = t->next)
-    if (t->kind == TK_IDENT && is_keyword(tok))
+    if (t->kind == TK_IDENT && is_keyword(t))
       t->kind = TK_KEYWORD;
 }
 
