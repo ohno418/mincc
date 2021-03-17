@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef struct Type Type;
+
 /* tokenize.c */
 typedef enum {
   TK_NUM,     // number
@@ -62,6 +64,7 @@ typedef struct Node Node;
 struct Node {
   Node *next;
   NodeKind kind;
+  Type *ty;
 
   Node *lhs; // left-hand side
   Node *rhs; // right-hand side
@@ -103,3 +106,17 @@ Function *parse(Token *tok);
 
 /* codegen.c */
 void codegen(Function *prog);
+
+
+/* type.c */
+typedef enum {
+  TY_INT,
+  TY_PTR,
+} TypeKind;
+
+struct Type {
+  TypeKind kind;
+  Type *base;
+};
+
+void add_type(Node *node);

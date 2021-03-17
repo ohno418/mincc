@@ -113,7 +113,10 @@ assert 'int main() { return 3+4*5; }' 23
 assert 'int main() { return (3+4)*5; }' 35
 assert 'int main() { return 3+(4*5); }' 23
 
-assert 'int main() { a=2; b=3; return *(&a+8); }' 3
-assert 'int main() { a=4; b=5; return *(&b-8); }' 4
+assert 'int main() { a=2; b=3; return *(&a+1); }' 3
+assert 'int main() { a=4; b=5; return *(&b-1); }' 4
+assert 'int main() { a=6; b=7; return *(&b-2+1); }' 6
+assert 'int main() { a=8; b=9; c=10; return *(&a+1); }' 9
+assert 'int main() { a=8; b=9; c=10; return *(&a+1+1); }' 10
 
 echo OK

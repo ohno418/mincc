@@ -47,6 +47,12 @@ Node *new_unary(NodeKind kind, Node *lhs) {
   return node;
 }
 
+Node *new_num(int val) {
+  Node *node = new_node(ND_NUM);
+  node->val = val;
+  return node;
+}
+
 Node *stmt(Token **rest, Token *tok);
 Node *compound_stmt(Token **rest, Token *tok);
 Node *expr_stmt(Token **rest, Token *tok);
@@ -193,18 +199,58 @@ Node *relational(Token **rest, Token *tok) {
   return node;
 }
 
+Node *new_add(Token **rest, Token *tok, Node *lhs) {
+  add_type(lhs);
+
+  if (lhs->ty->kind == TY_INT)
+    return new_binary(ND_ADD, lhs, mul(rest, tok->next));
+
+  if (lhs->ty->kind == TY_PTR)
+    return new_binary(
+      ND_ADD,
+      lhs,
+      new_binary(
+        ND_MUL,
+        mul(rest, tok->next),
+        new_num(8)
+      )
+    );
+
+  error("invalid operand");
+}
+
+Node *new_sub(Token **rest, Token *tok, Node *lhs) {
+  add_type(lhs);
+
+  if (lhs->ty->kind == TY_INT)
+    return new_binary(ND_SUB, lhs, mul(rest, tok->next));
+
+  if (lhs->ty->kind == TY_PTR)
+    return new_binary(
+      ND_SUB,
+      lhs,
+      new_binary(
+        ND_MUL,
+        mul(rest, tok->next),
+        new_num(8)
+      )
+    );
+
+  error("invalid operand");
+}
+
 // add = mul ("+" mul | "-" mul)*
 Node *add(Token **rest, Token *tok) {
   Node *node = mul(&tok, tok);
 
   for (;;) {
     if (equal(tok, "+")) {
-      node = new_binary(ND_ADD, node, mul(&tok, tok->next));
+      node = new_add(&tok, tok, node);
       continue;
     }
 
     if (equal(tok, "-")) {
-      node = new_binary(ND_SUB, node, mul(&tok, tok->next));
+      node = new_sub(&tok, tok, node);
       continue;
     }
 
@@ -255,8 +301,7 @@ Node *unary(Token **rest, Token *tok) {
 // args = expr ("," expr)*
 Node *primary(Token **rest, Token *tok) {
   if (tok->kind == TK_NUM) {
-    Node *node = new_node(ND_NUM);
-    node->val = atoi(tok->loc);
+    Node *node = new_num(atoi(tok->loc));
     *rest = tok->next;
     return node;
   }
