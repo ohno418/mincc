@@ -16,9 +16,10 @@ Var *find_lvar(char *name) {
   return NULL;
 }
 
-Var *new_var(char *name) {
+Var *new_lvar(char *name, Type *ty) {
   Var *var = calloc(1, sizeof(Var));
   var->name = name;
+  var->ty = ty;
 
   // List it in lvars.
   var->next = lvars;
@@ -52,6 +53,7 @@ Node *new_num(int val) {
   return node;
 }
 
+Node *declaration(Token **rest, Token *tok);
 Node *stmt(Token **rest, Token *tok);
 Node *compound_stmt(Token **rest, Token *tok);
 Node *expr_stmt(Token **rest, Token *tok);
@@ -63,6 +65,50 @@ Node *add(Token **rest, Token *tok);
 Node *mul(Token **rest, Token *tok);
 Node *unary(Token **rest, Token *tok);
 Node *primary(Token **rest, Token *tok);
+
+// declspec = "int"
+Type *declspec(Token **rest, Token *tok) {
+  if (equal(tok, "int")) {
+    *rest = tok->next;
+    return ty_int();
+  }
+
+  error("unknown declspec");
+}
+
+// declarator = "*"* ident
+Type *declarator(Token **rest, Token *tok, Type *ty) {
+  for (; equal(tok, "*"); tok = tok->next)
+    ty = ty_ptr(ty);
+
+  if (tok->kind != TK_IDENT)
+    error("expected identifier");
+
+  ty->name = strndup(tok->loc, tok->len);
+  *rest = tok->next;
+  return ty;
+}
+
+// declaration = declspec declarator ("=" expr)? ";"
+Node *declaration(Token **rest, Token *tok) {
+  Type *base_ty = declspec(&tok, tok);
+  Type *ty = declarator(&tok, tok, base_ty);
+
+  Var *var = new_lvar(ty->name, ty);
+  Node *node = new_node(ND_VAR);
+  node->var = var;
+
+  if (equal(tok, "="))
+    node = new_binary(ND_ASSIGN, node, expr(&tok, tok->next));
+
+  if (!equal(tok, ";"))
+    error("expected \";\"");
+  *rest = tok->next;
+
+  Node *block = new_node(ND_BLOCK);
+  block->body = new_unary(ND_EXPR_STMT, node);
+  return block;
+}
 
 // stmt = "return" expr ";"
 //      | "if" "(" expr ")" stmt ("else" stmt)?
@@ -126,12 +172,20 @@ Node *stmt(Token **rest, Token *tok) {
   return expr_stmt(rest, tok);
 }
 
-// compound_stmt = stmt* "}"
+bool is_typename(Token *tok) {
+  return equal(tok, "int");
+}
+
+// compound_stmt = (declaration | stmt)* "}"
 Node *compound_stmt(Token **rest, Token *tok) {
   Node head;
   Node *cur = &head;
-  for (; !equal(tok, "}");)
-    cur = cur->next = stmt(&tok, tok);
+  for (; !equal(tok, "}");) {
+    if (is_typename(tok))
+      cur = cur->next = declaration(&tok, tok);
+    else
+      cur = cur->next = stmt(&tok, tok);
+  }
 
   Node *node = new_node(ND_BLOCK);
   node->body = head.next;
@@ -333,7 +387,7 @@ Node *primary(Token **rest, Token *tok) {
     // variable
     Var *var = find_lvar(strndup(tok->loc, tok->len));
     if (!var)
-      var = new_var(strndup(tok->loc, tok->len));
+      error("an unknown variable");
 
     Node *node = new_node(ND_VAR);
     node->var = var;
@@ -352,22 +406,20 @@ Node *primary(Token **rest, Token *tok) {
   error("unknown primary");
 }
 
-// function = "int" func_name "(" func_params? ")" "{" compound_stmt
-// func_params = ident ("," ident)*
+// function = declspec declarator "(" func_params? ")" "{" compound_stmt
+// func_params = declspec ident ("," declspec ident)*
 Function *function(Token **rest, Token *tok) {
   lvars = NULL;
 
   Function *fn = calloc(1, sizeof(Function));
 
-  if (!equal(tok, "int"))
-    error("expected \"int\"");
-  tok = tok->next;
+  Type *base_ty = declspec(&tok, tok);
+  Type *ty = declarator(&tok, tok, base_ty);
+  fn->name = ty->name;
 
-  fn->name = strndup(tok->loc, tok->len);
-
-  if (!equal(tok->next, "("))
+  if (!equal(tok, "("))
     error("expected \"(\"");
-  tok = tok->next->next;
+  tok = tok->next;
 
   // params
   for (int i = 0; !equal(tok, ")"); i = i + 1) {
@@ -377,7 +429,8 @@ Function *function(Token **rest, Token *tok) {
       tok = tok->next;
     }
 
-    new_var(strndup(tok->loc, tok->len));
+    Type *ty = declspec(&tok, tok);
+    new_lvar(strndup(tok->loc, tok->len), ty);
     tok = tok->next;
   }
   fn->params = lvars;

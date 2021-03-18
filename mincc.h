@@ -33,6 +33,7 @@ typedef struct Var Var;
 struct Var {
   Var *next;
   char *name;
+  Type *ty;
 
   // offset from RBP
   int offset;
@@ -115,7 +116,14 @@ typedef enum {
 
 struct Type {
   TypeKind kind;
+
+  // pointer
   Type *base;
+
+  // declaration
+  char *name;
 };
 
+Type *ty_int();
+Type *ty_ptr(Type *base);
 void add_type(Node *node);
