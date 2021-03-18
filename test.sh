@@ -120,4 +120,10 @@ assert 'int main() { int a=6; int b=7; return *(&b-2+1); }' 6
 assert 'int main() { int a=8; int b=9; int c=10; return *(&a+1); }' 9
 assert 'int main() { int a=8; int b=9; int c=10; return *(&a+1+1); }' 10
 
+assert 'int main() { return sizeof(2); }' 8
+assert 'int main() { int x; return sizeof(x); }' 8
+assert 'int main() { int x=4; return sizeof(x); }' 8
+assert 'int main() { int x=5; int *p=&x; return sizeof(p); }' 8
+assert 'int main() { int a=6; int *b=&a; int **c=&b; return sizeof(c); }' 8
+
 echo OK

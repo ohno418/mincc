@@ -351,6 +351,7 @@ Node *unary(Token **rest, Token *tok) {
 // primary = num
 //         | ident ("(" args ")")?
 //         | "(" expr ")"
+//         | "sizeof" unary
 // args = expr ("," expr)*
 Node *primary(Token **rest, Token *tok) {
   if (tok->kind == TK_NUM) {
@@ -401,6 +402,12 @@ Node *primary(Token **rest, Token *tok) {
       error("expected \")\"");
     *rest = tok->next;
     return node;
+  }
+
+  if (equal(tok, "sizeof")) {
+    Node *node = unary(rest, tok->next);
+    add_type(node);
+    return new_num(node->ty->size);
   }
 
   error("unknown primary");

@@ -116,6 +116,7 @@ typedef enum {
 
 struct Type {
   TypeKind kind;
+  int size;
 
   // pointer
   Type *base;

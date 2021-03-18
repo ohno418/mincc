@@ -14,9 +14,8 @@ bool is_ident_char(char c) {
 }
 
 bool is_keyword(Token *tok) {
-  return equal(tok, "return") ||
-    equal(tok, "if") || equal(tok, "else") ||
-    equal(tok, "for") || equal(tok, "int");
+  return equal(tok, "return") || equal(tok, "if") || equal(tok, "else") ||
+    equal(tok, "for") || equal(tok, "int") || equal(tok, "sizeof");
 }
 
 void convert_keywords(Token *tok) {
