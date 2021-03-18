@@ -45,13 +45,11 @@ void add_type(Node *node) {
   }
 
   if (node->kind == ND_VAR) {
-    // TODO
-    node->ty = ty_int();
+    node->ty = node->var->ty;
     return;
   }
 
   if (node->kind == ND_FUNCALL) {
-    // TODO
     node->ty = ty_int();
     return;
   }
