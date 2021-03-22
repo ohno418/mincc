@@ -112,19 +112,24 @@ void codegen(Function *prog);
 typedef enum {
   TY_INT,
   TY_PTR,
+  TY_ARRAY,
 } TypeKind;
 
 struct Type {
   TypeKind kind;
   int size;
 
-  // pointer
+  // pointer-to or array-of type
   Type *base;
 
   // declaration
   char *name;
+
+  // array
+  int array_len;
 };
 
 Type *ty_int();
 Type *ty_ptr(Type *base);
+Type *ty_array(Type *base, int len);
 void add_type(Node *node);

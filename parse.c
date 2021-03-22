@@ -76,16 +76,39 @@ Type *declspec(Token **rest, Token *tok) {
   error("unknown declspec");
 }
 
-// declarator = "*"* ident
+// type_suffix = "[" num "]"
+//             | ε
+Type *type_suffix(Token **rest, Token *tok, Type *ty) {
+  if (equal(tok, "[")) {
+    tok = tok->next;
+
+    if (tok->kind != TK_NUM)
+      error("expected a number");
+    ty = ty_array(ty, atoi(strndup(tok->loc, tok->len)));
+    tok = tok->next;
+
+    if (!equal(tok, "]"))
+      error("expected \"]\"");
+
+    *rest = tok->next;
+    return ty;
+  }
+
+  *rest = tok;
+  return ty;
+}
+
+// declarator = "*"* ident type_suffix
 Type *declarator(Token **rest, Token *tok, Type *ty) {
   for (; equal(tok, "*"); tok = tok->next)
     ty = ty_ptr(ty);
 
   if (tok->kind != TK_IDENT)
     error("expected identifier");
+  char *name = strndup(tok->loc, tok->len);
 
-  ty->name = strndup(tok->loc, tok->len);
-  *rest = tok->next;
+  ty = type_suffix(rest, tok->next, ty);
+  ty->name = name;
   return ty;
 }
 
@@ -414,7 +437,7 @@ Node *primary(Token **rest, Token *tok) {
 }
 
 // function = declspec declarator "(" func_params? ")" "{" compound_stmt
-// func_params = declspec ident ("," declspec ident)*
+// func_params = declspec declarator ("," declspec declarator)*
 Function *function(Token **rest, Token *tok) {
   lvars = NULL;
 
@@ -437,8 +460,8 @@ Function *function(Token **rest, Token *tok) {
     }
 
     Type *ty = declspec(&tok, tok);
-    new_lvar(strndup(tok->loc, tok->len), ty);
-    tok = tok->next;
+    ty = declarator(&tok, tok, ty);
+    new_lvar(ty->name, ty);
   }
   fn->params = lvars;
 
@@ -452,7 +475,7 @@ Function *function(Token **rest, Token *tok) {
   // Assign offsets to local variables.
   int offset = 0;
   for (Var *v = lvars; v; v = v->next) {
-    offset = offset + 8;
+    offset = offset + v->ty->size;
     v->offset = offset;
   }
 
