@@ -127,9 +127,6 @@ assert 'int main() { int x=5; int *p=&x; return sizeof(p); }' 8
 assert 'int main() { int a=6; int *b=&a; int **c=&b; return sizeof(c); }' 8
 
 assert 'int main() { int a[2]; return sizeof(a); }' 16
-# TODO: ???
-assert 'int main() { int a[2]; int *p=&a; *p=3; return *a; }' 3
-
 assert 'int main() { int a[3]; *a=2; *(a+1)=3; *(a+2)=4; return *a; }' 2
 assert 'int main() { int a[3]; *a=2; *(a+1)=3; *(a+2)=4; return *(a+1); }' 3
 assert 'int main() { int a[3]; *a=2; *(a+1)=3; *(a+2)=4; return *(a+2); }' 4

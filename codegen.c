@@ -38,6 +38,19 @@ void gen_addr(Node *node) {
   error("not a lvar");
 }
 
+// Load a value in RAX from where the stack top is pointing to.
+void load(Type *ty) {
+  // TODO
+  if (ty->kind == TY_ARRAY)
+    return;
+
+  printf("  pop rax\n");
+  printf("  mov rax, [rax]\n");
+}
+
+void store() {
+}
+
 void gen_expr(Node *node) {
   if (node->kind == ND_NUM) {
     printf("  push %d\n", node->val);
@@ -46,8 +59,7 @@ void gen_expr(Node *node) {
 
   if (node->kind == ND_VAR) {
     gen_addr(node);
-    printf("  pop rax\n");
-    printf("  mov rax, [rax]\n");
+    load(node->ty);
     printf("  push rax\n");
     return;
   }
@@ -69,8 +81,7 @@ void gen_expr(Node *node) {
 
   if (node->kind == ND_DEREF) {
     gen_expr(node->lhs);
-    printf("  pop rax\n");
-    printf("  mov rax, [rax]\n");
+    load(node->ty);
     printf("  push rax\n");
     return;
   }

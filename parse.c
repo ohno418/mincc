@@ -208,6 +208,7 @@ Node *compound_stmt(Token **rest, Token *tok) {
       cur = cur->next = declaration(&tok, tok);
     else
       cur = cur->next = stmt(&tok, tok);
+    add_type(cur);
   }
 
   Node *node = new_node(ND_BLOCK);
@@ -281,7 +282,7 @@ Node *new_add(Token **rest, Token *tok, Node *lhs) {
   if (lhs->ty->kind == TY_INT)
     return new_binary(ND_ADD, lhs, mul(rest, tok->next));
 
-  if (lhs->ty->kind == TY_PTR)
+  if (lhs->ty->base)
     return new_binary(
       ND_ADD,
       lhs,
@@ -301,7 +302,7 @@ Node *new_sub(Token **rest, Token *tok, Node *lhs) {
   if (lhs->ty->kind == TY_INT)
     return new_binary(ND_SUB, lhs, mul(rest, tok->next));
 
-  if (lhs->ty->kind == TY_PTR)
+  if (lhs->ty->base)
     return new_binary(
       ND_SUB,
       lhs,
