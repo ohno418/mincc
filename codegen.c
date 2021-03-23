@@ -40,15 +40,21 @@ void gen_addr(Node *node) {
 
 // Load a value in RAX from where the stack top is pointing to.
 void load(Type *ty) {
-  // TODO
-  if (ty->kind == TY_ARRAY)
-    return;
-
   printf("  pop rax\n");
+
+  if (ty->kind == TY_ARRAY) {
+    // An evaluation of an array is not the array itself,
+    // but the address of the array.
+    return;
+  }
+
   printf("  mov rax, [rax]\n");
 }
 
+// Store RAX to an address that the stack top is pointing to.
 void store() {
+  printf("  pop rdi\n");
+  printf("  mov [rdi], rax\n");
 }
 
 void gen_expr(Node *node) {
@@ -67,10 +73,9 @@ void gen_expr(Node *node) {
   if (node->kind == ND_ASSIGN) {
     gen_addr(node->lhs);
     gen_expr(node->rhs);
-    printf("  pop rdi\n");
     printf("  pop rax\n");
-    printf("  mov [rax], rdi\n");
-    printf("  push rdi\n");
+    store();
+    printf("  push rax\n");
     return;
   }
 
