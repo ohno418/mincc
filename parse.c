@@ -27,19 +27,40 @@ Node *new_binary_node(NodeKind kind, Node *lhs, Node *rhs) {
   return node;
 }
 
-// mul = num ("*" | "/" num)*
+// primary = num | ident
+Node *primary(Token *tok, Token **rest) {
+  if (tok->kind == TK_NUM)
+    return new_num_node(tok, rest);
+
+  if (tok->kind == TK_IDENT) {
+    Var *var = calloc(1, sizeof(Var));
+    var->name = *tok->loc;
+    var->offset = (var->name - 'a' + 1) * 8;
+
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_VAR;
+    node->var = var;
+    *rest = tok->next;
+    return node;
+  }
+
+  fprintf(stderr, "unknown primary: %s", tok->loc);
+  exit(1);
+}
+
+// mul = primary ("*" | "/" primary)*
 Node *mul(Token *tok, Token **rest) {
-  Node *node = new_num_node(tok, &tok);
+  Node *node = primary(tok, &tok);
 
   for (;;) {
     if (equal(tok, "*")) {
-      Node *rhs = new_num_node(tok->next, &tok);
+      Node *rhs = primary(tok->next, &tok);
       node = new_binary_node(ND_MUL, node, rhs);
       continue;
     }
 
     if (equal(tok, "/")) {
-      Node *rhs = new_num_node(tok->next, &tok);
+      Node *rhs = primary(tok->next, &tok);
       node = new_binary_node(ND_DIV, node, rhs);
       continue;
     }
@@ -75,9 +96,29 @@ Node *add(Token *tok, Token **rest) {
   return node;
 }
 
-// expr = add
+// assign = add ("=" assign)?
+Node *assign(Token *tok, Token **rest) {
+  Node *node = add(tok, &tok);
+
+  if (equal(tok, "=")) {
+    if (node->kind != ND_VAR) {
+      fprintf(stderr, "assign to a non-variable");
+      exit(1);
+    }
+    tok = tok->next;
+
+    Node *rhs = assign(tok, &tok);
+    node = new_binary_node(ND_ASSIGN, node, rhs);
+    *rest = tok;
+  }
+
+  *rest = tok;
+  return node;
+}
+
+// expr = assign
 Node *expr(Token *tok, Token **rest) {
-  return add(tok, rest);
+  return assign(tok, rest);
 }
 
 // expr_stmt = expr ";"
@@ -87,7 +128,7 @@ Node *expr_stmt(Token *tok, Token **rest) {
   node->lhs = expr(tok, &tok);
 
   if (!equal(tok, ";")) {
-    fprintf(stderr, "\";\" expected");
+    fprintf(stderr, "\";\" expected %s", tok->loc);
     exit(1);
   }
   *rest = tok->next;

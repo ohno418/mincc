@@ -30,9 +30,21 @@ Token *tokenize(char *input) {
 
     // puctuator
     if (*p == '+' || *p == '-' || *p == '*' || *p == '/' ||
-        *p == ';') {
+        *p == '=' || *p == ';') {
       Token *tok = calloc(1, sizeof(Token));
       tok->kind = TK_PUCT;
+      tok->loc = p;
+      tok->len = 1;
+      cur->next = tok;
+      cur = cur->next;
+      p++;
+      continue;
+    }
+
+    // identifier
+    if ('a' <= *p && *p <= 'z') {
+      Token *tok = calloc(1, sizeof(Token));
+      tok->kind = TK_IDENT;
       tok->loc = p;
       tok->len = 1;
       cur->next = tok;
