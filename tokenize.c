@@ -6,6 +6,12 @@ Token *tokenize(char *input) {
 
   char *p = input;
   for (; *p;) {
+    // Skip spaces
+    if (isspace(*p)) {
+      p++;
+      continue;
+    }
+
     // number
     if (isdigit(*p)) {
       char *start = p;
