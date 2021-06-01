@@ -1,7 +1,10 @@
-CC=gcc
+CC=clang
+OBJS=main.o tokenize.o parse.o codegen.o
 
-mincc: main.c
-	${CC} -o $@ $^
+mincc: $(OBJS)
+	$(CC) -o $@ $^
+
+$(OBJS): mincc.h
 
 .PHONY: test
 test: mincc
@@ -9,4 +12,4 @@ test: mincc
 
 .PHONY: clean
 clean:
-	rm -f mincc tmp*
+	rm -f mincc *.o tmp*
