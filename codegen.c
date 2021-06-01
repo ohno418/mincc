@@ -58,13 +58,17 @@ void gen_expr(Node *node) {
     printf("    mov [rax], rdi\n");
     printf("    push rdi\n");
     break;
-  case ND_VAR: {
+  case ND_VAR:
+    if (!node->var) {
+      fprintf(stderr, "unknown variable");
+      exit(1);
+    }
+
     printf("    mov rax, rbp\n");
     printf("    sub rax, %d\n", node->var->offset);
     printf("    mov rax, [rax]\n");
     printf("    push rax\n");
     break;
-  }
   default:
     fprintf(stderr, "unknown expression");
     exit(1);
@@ -83,17 +87,38 @@ void gen_stmt(Node *node) {
   }
 }
 
-void codegen(Node *node) {
-  printf("    .intel_syntax noprefix\n");
-  printf("    .globl main\n");
+void assign_lvar_offsets(Function *fn) {
+  int offset = 0;
+  for (Var *var = fn->lvars; var; var = var->next) {
+    offset += 8;
+    var->offset = offset;
+  }
+}
 
-  printf("main:\n");
+int align_to(int n, int align) {
+  return (n + align - 1) / align * align;
+}
+
+int stack_size(Function *fn) {
+  int stack_size = 0;
+  for (Var *var = fn->lvars; var; var = var->next)
+    stack_size += var->offset;
+  return align_to(stack_size, 16);
+}
+
+void codegen(Function *fn) {
+  printf("    .intel_syntax noprefix\n");
+  printf("    .globl %s\n", fn->name);
+
+  printf("%s:\n", fn->name);
   printf("    push rbp\n");
   printf("    mov rbp, rsp\n");
-  printf("    sub rsp, 208\n");
 
-  for (Node *stmt = node; stmt; stmt = stmt->next)
-    gen_stmt(stmt);
+  assign_lvar_offsets(fn);
+  printf("    sub rsp, %d\n", stack_size(fn));
+
+  for (Node *node = fn->body; node; node = node->next)
+    gen_stmt(node);
 
   printf("    mov rsp, rbp\n");
   printf("    pop rbp\n");

@@ -1,5 +1,7 @@
 #include "mincc.h"
 
+Var *lvars;
+
 _Bool equal(Token *tok, char *str) {
   return
     tok->len == strlen(str) &&
@@ -36,19 +38,33 @@ Node *new_binary_node(NodeKind kind, Node *lhs, Node *rhs) {
   return node;
 }
 
+Var *find_lvar(char name) {
+  for (Var *v = lvars; v; v = v->next)
+    if (v->name == name)
+      return v;
+  return NULL;
+}
+
+Var *create_lvar(char name) {
+  Var *var = calloc(1, sizeof(Var));
+  var->name = name;
+
+  // Register lvar.
+  var->next = lvars;
+  lvars = var;
+  return var;
+}
+
 // primary = num | ident
 Node *primary(Token *tok, Token **rest) {
   if (tok->kind == TK_NUM)
     return new_num_node(tok, rest);
 
   if (tok->kind == TK_IDENT) {
-    Var *var = calloc(1, sizeof(Var));
-    var->name = *tok->loc;
-    var->offset = (var->name - 'a' + 1) * 8;
-
+    // variable
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_VAR;
-    node->var = var;
+    node->var = find_lvar(*tok->loc);
     *rest = tok->next;
     return node;
   }
@@ -107,6 +123,7 @@ Node *add(Token *tok, Token **rest) {
 
 // assign = add ("=" assign)?
 Node *assign(Token *tok, Token **rest) {
+  Token *start = tok;
   Node *node = add(tok, &tok);
 
   if (equal(tok, "=")) {
@@ -116,6 +133,8 @@ Node *assign(Token *tok, Token **rest) {
     }
     tok = tok->next;
 
+    Var *var = create_lvar(*start->loc);
+    node->var = var;
     Node *rhs = assign(tok, &tok);
     node = new_binary_node(ND_ASSIGN, node, rhs);
     *rest = tok;
@@ -144,9 +163,22 @@ Node *expr_stmt(Token *tok, Token **rest) {
   return node;
 }
 
-// function = "main" "(" ")" "{" expr_stmt* "}"
-Node *function(Token *tok, Token **rest) {
-  consume(tok, &tok, "main");
+char *get_ident(Token *tok) {
+  if (tok->kind != TK_IDENT) {
+    fprintf(stderr, "expected identifier");
+    exit(1);
+  }
+
+  return strndup(tok->loc, tok->len);
+}
+
+// function = ident "(" ")" "{" expr_stmt* "}"
+Function *function(Token *tok, Token **rest) {
+  Function *fn = calloc(1, sizeof(Function));
+  fn->name = get_ident(tok);
+  tok = tok->next;
+  lvars = NULL;
+
   consume(tok, &tok, "(");
   consume(tok, &tok, ")");
   consume(tok, &tok, "{");
@@ -158,15 +190,18 @@ Node *function(Token *tok, Token **rest) {
     cur = cur->next;
   }
   *rest = tok->next;
-  return head.next;
+
+  fn->body = head.next;
+  fn->lvars = lvars;
+  return fn;
 }
 
 // program = function
-Node *parse(Token *tok) {
-  Node *node = function(tok, &tok);
+Function *parse(Token *tok) {
+  Function *fn = function(tok, &tok);
   if (tok->kind != TK_EOF) {
     fprintf(stderr, "extra token");
     exit(1);
   }
-  return node;
+  return fn;
 }

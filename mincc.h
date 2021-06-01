@@ -23,10 +23,12 @@ struct Token {
 Token *tokenize(char *input);
 
 /* parse.c */
-typedef struct Var {
+typedef struct Var Var;
+struct Var {
+  Var *next;
   char name;
   int offset;
-} Var;
+};
 
 typedef enum {
   ND_EXPR_STMT, // expression statement
@@ -52,7 +54,13 @@ struct Node {
   Var *var; // ND_VAR
 };
 
-Node *parse(Token *tok);
+typedef struct Function {
+  char *name;
+  Var *lvars;
+  Node *body;
+} Function;
+
+Function *parse(Token *tok);
 
 /* codegen.c */
-void codegen(Node *node);
+void codegen(Function *fn);
