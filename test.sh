@@ -33,6 +33,8 @@ assert "1+3*2;" 7
 assert "3/2+1;" 2
 assert "1+3/2;" 2
 assert "1+3/2*4;" 5
+assert "3; 42;" 42
+assert "1; 2; 3;" 3
 
 echo OK
 exit 0

@@ -23,16 +23,19 @@ Token *tokenize(char *input);
 
 /* parse.c */
 typedef enum {
-  ND_NUM, // number
-  ND_ADD, // +
-  ND_SUB, // -
-  ND_MUL, // *
-  ND_DIV, // /
+  ND_EXPR_STMT, // expression statement
+                // (lhs has its expression.)
+  ND_NUM,       // number
+  ND_ADD,       // +
+  ND_SUB,       // -
+  ND_MUL,       // *
+  ND_DIV,       // /
 } NodeKind;
 
 typedef struct Node Node;
 struct Node {
   NodeKind kind;
+  Node *next;
 
   int num; // ND_NUM
 

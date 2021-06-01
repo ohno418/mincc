@@ -39,7 +39,19 @@ void gen_expr(Node *node) {
     printf("    push rax\n");
     break;
   default:
-    fprintf(stderr, "unexpected node");
+    fprintf(stderr, "unknown expression");
+    exit(1);
+  }
+}
+
+void gen_stmt(Node *node) {
+  switch (node->kind) {
+  case ND_EXPR_STMT:
+    gen_expr(node->lhs);
+    printf("    pop rax\n");
+    break;
+  default:
+    fprintf(stderr, "unknown statement");
     exit(1);
   }
 }
@@ -48,7 +60,7 @@ void codegen(Node *node) {
   printf("    .intel_syntax noprefix\n");
   printf("    .globl main\n");
   printf("main:\n");
-  gen_expr(node);
-  printf("    pop rax\n");
+  for (Node *stmt = node; stmt; stmt = stmt->next)
+    gen_stmt(stmt);
   printf("    ret\n");
 }

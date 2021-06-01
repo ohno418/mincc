@@ -82,7 +82,9 @@ Node *expr(Token *tok, Token **rest) {
 
 // expr_stmt = expr ";"
 Node *expr_stmt(Token *tok, Token **rest) {
-  Node *node = expr(tok, &tok);
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_EXPR_STMT;
+  node->lhs = expr(tok, &tok);
 
   if (!equal(tok, ";")) {
     fprintf(stderr, "\";\" expected");
@@ -92,13 +94,13 @@ Node *expr_stmt(Token *tok, Token **rest) {
   return node;
 }
 
+// program = expr_stmt*
 Node *parse(Token *tok) {
-  Node *node = expr_stmt(tok, &tok);
-
-  if (tok->kind != TK_EOF) {
-    fprintf(stderr, "extra token");
-    exit(1);
+  Node head;
+  Node *cur = &head;
+  for (; tok->kind != TK_EOF;) {
+    cur->next = expr_stmt(tok, &tok);
+    cur = cur->next;
   }
-
-  return node;
+  return head.next;
 }
