@@ -8,9 +8,17 @@ void gen_expr(Node *node) {
   case ND_ADD:
     gen_expr(node->lhs);
     gen_expr(node->rhs);
-    printf("    pop rax\n");
     printf("    pop rdi\n");
+    printf("    pop rax\n");
     printf("    add rax, rdi\n");
+    printf("    push rax\n");
+    break;
+  case ND_SUB:
+    gen_expr(node->lhs);
+    gen_expr(node->rhs);
+    printf("    pop rdi\n");
+    printf("    pop rax\n");
+    printf("    sub rax, rdi\n");
     printf("    push rax\n");
     break;
   default:

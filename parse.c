@@ -27,13 +27,24 @@ Node *new_binary_node(NodeKind kind, Node *lhs, Node *rhs) {
   return node;
 }
 
-// num ("+" expr)*
+// num ("+" | "-" num)*
 Node *expr(Token *tok, Token **rest) {
   Node *node = new_num_node(tok, &tok);
 
-  if (equal(tok, "+")) {
-    Node *rhs = expr(tok->next, &tok);
-    node = new_binary_node(ND_ADD, node, rhs);
+  for (;;) {
+    if (equal(tok, "+")) {
+      Node *rhs = expr(tok->next, &tok);
+      node = new_binary_node(ND_ADD, node, rhs);
+      continue;
+    }
+
+    if (equal(tok, "-")) {
+      Node *rhs = expr(tok->next, &tok);
+      node = new_binary_node(ND_SUB, node, rhs);
+      continue;
+    }
+
+    break;
   }
 
   *rest = tok;

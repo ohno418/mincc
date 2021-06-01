@@ -25,6 +25,7 @@ Token *tokenize(char *input);
 typedef enum {
   ND_NUM, // number
   ND_ADD, // +
+  ND_SUB, // -
 } NodeKind;
 
 typedef struct Node Node;

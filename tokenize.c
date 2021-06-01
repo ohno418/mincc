@@ -29,7 +29,7 @@ Token *tokenize(char *input) {
     }
 
     // puctuator
-    if (*p == '+') {
+    if (*p == '+' || *p == '-') {
       Token *tok = calloc(1, sizeof(Token));
       tok->kind = TK_PUCT;
       tok->loc = p;
