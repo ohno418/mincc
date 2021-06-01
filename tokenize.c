@@ -30,7 +30,8 @@ Token *tokenize(char *input) {
 
     // puctuator
     if (*p == '+' || *p == '-' || *p == '*' || *p == '/' ||
-        *p == '=' || *p == ';') {
+        *p == '=' || *p == ';' ||
+        *p == '(' || *p == ')' || *p == '{' || *p == '}') {
       Token *tok = calloc(1, sizeof(Token));
       tok->kind = TK_PUCT;
       tok->loc = p;
@@ -43,17 +44,19 @@ Token *tokenize(char *input) {
 
     // identifier
     if ('a' <= *p && *p <= 'z') {
+      char *start = p;
+      for (; ('a' <= *p && *p <= 'z') || *p == '_'; p++);
+
       Token *tok = calloc(1, sizeof(Token));
       tok->kind = TK_IDENT;
-      tok->loc = p;
-      tok->len = 1;
+      tok->loc = start;
+      tok->len = p - start;
       cur->next = tok;
       cur = cur->next;
-      p++;
       continue;
     }
 
-    fprintf(stderr, "Unknown token");
+    fprintf(stderr, "Unknown token: %s", p);
     exit(1);
   }
 

@@ -6,6 +6,15 @@ _Bool equal(Token *tok, char *str) {
     strncmp(tok->loc, str, tok->len) == 0;
 }
 
+void consume(Token *tok, Token **rest, char *str) {
+  if (!equal(tok, str)) {
+    fprintf(stderr, "expected \"%s\"", str);
+    exit(1);
+  }
+
+  *rest = tok->next;
+}
+
 Node *new_num_node(Token *tok, Token **rest) {
   if (tok->kind != TK_NUM) {
     fprintf(stderr, "expected number token");
@@ -135,13 +144,29 @@ Node *expr_stmt(Token *tok, Token **rest) {
   return node;
 }
 
-// program = expr_stmt*
-Node *parse(Token *tok) {
+// function = "main" "(" ")" "{" expr_stmt* "}"
+Node *function(Token *tok, Token **rest) {
+  consume(tok, &tok, "main");
+  consume(tok, &tok, "(");
+  consume(tok, &tok, ")");
+  consume(tok, &tok, "{");
+
   Node head;
   Node *cur = &head;
-  for (; tok->kind != TK_EOF;) {
+  for (; !equal(tok, "}");) {
     cur->next = expr_stmt(tok, &tok);
     cur = cur->next;
   }
+  *rest = tok->next;
   return head.next;
+}
+
+// program = function
+Node *parse(Token *tok) {
+  Node *node = function(tok, &tok);
+  if (tok->kind != TK_EOF) {
+    fprintf(stderr, "extra token");
+    exit(1);
+  }
+  return node;
 }
