@@ -1,15 +1,25 @@
 #!/bin/bash
-./mincc > tmp.s
-gcc -o tmp tmp.s
-./tmp
 
-retval="$?"
-if [ "$retval" == "42" ]
-then
-  echo OK
-else
-  echo FAIL
-  exit 1
-fi
+assert() {
+  input="$1"
+  expected="$2"
 
+  ./mincc "$input" > tmp.s
+  gcc -o tmp tmp.s
+  ./tmp
+
+  actual="$?"
+  if [ "$actual" == "$expected" ]
+  then
+    echo "$input => $actual"
+  else
+    echo "$input => $expected expected, but got $actual"
+    exit 1
+  fi
+}
+
+assert 42 42
+assert 123 123
+
+echo OK
 exit 0
