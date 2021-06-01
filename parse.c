@@ -27,7 +27,7 @@ Node *new_binary_node(NodeKind kind, Node *lhs, Node *rhs) {
   return node;
 }
 
-// num ("*" | "/" num)*
+// mul = num ("*" | "/" num)*
 Node *mul(Token *tok, Token **rest) {
   Node *node = new_num_node(tok, &tok);
 
@@ -51,7 +51,7 @@ Node *mul(Token *tok, Token **rest) {
   return node;
 }
 
-// mul ("+" | "-" mul)*
+// add = mul ("+" | "-" mul)*
 Node *add(Token *tok, Token **rest) {
   Node *node = mul(tok, &tok);
 
@@ -75,12 +75,25 @@ Node *add(Token *tok, Token **rest) {
   return node;
 }
 
+// expr = add
 Node *expr(Token *tok, Token **rest) {
   return add(tok, rest);
 }
 
-Node *parse(Token *tok) {
+// expr_stmt = expr ";"
+Node *expr_stmt(Token *tok, Token **rest) {
   Node *node = expr(tok, &tok);
+
+  if (!equal(tok, ";")) {
+    fprintf(stderr, "\";\" expected");
+    exit(1);
+  }
+  *rest = tok->next;
+  return node;
+}
+
+Node *parse(Token *tok) {
+  Node *node = expr_stmt(tok, &tok);
 
   if (tok->kind != TK_EOF) {
     fprintf(stderr, "extra token");
