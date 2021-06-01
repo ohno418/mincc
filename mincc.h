@@ -26,7 +26,7 @@ Token *tokenize(char *input);
 typedef struct Var Var;
 struct Var {
   Var *next;
-  char name;
+  char *name;
   int offset;
 };
 

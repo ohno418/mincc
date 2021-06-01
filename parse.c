@@ -38,14 +38,27 @@ Node *new_binary_node(NodeKind kind, Node *lhs, Node *rhs) {
   return node;
 }
 
-Var *find_lvar(char name) {
-  for (Var *v = lvars; v; v = v->next)
-    if (v->name == name)
+char *get_ident(Token *tok) {
+  if (tok->kind != TK_IDENT) {
+    fprintf(stderr, "expected identifier");
+    exit(1);
+  }
+
+  return strndup(tok->loc, tok->len);
+}
+
+Var *find_lvar(char *name) {
+  for (Var *v = lvars; v; v = v->next) {
+    if (strlen(v->name) == strlen(name) &&
+        strncmp(v->name, name, strlen(name)) == 0) {
       return v;
+    }
+  }
+
   return NULL;
 }
 
-Var *create_lvar(char name) {
+Var *create_lvar(char *name) {
   Var *var = calloc(1, sizeof(Var));
   var->name = name;
 
@@ -64,7 +77,7 @@ Node *primary(Token *tok, Token **rest) {
     // variable
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_VAR;
-    node->var = find_lvar(*tok->loc);
+    node->var = find_lvar(get_ident(tok));
     *rest = tok->next;
     return node;
   }
@@ -133,7 +146,7 @@ Node *assign(Token *tok, Token **rest) {
     }
     tok = tok->next;
 
-    Var *var = create_lvar(*start->loc);
+    Var *var = create_lvar(get_ident(start));
     node->var = var;
     Node *rhs = assign(tok, &tok);
     node = new_binary_node(ND_ASSIGN, node, rhs);
@@ -163,15 +176,6 @@ Node *expr_stmt(Token *tok, Token **rest) {
   return node;
 }
 
-char *get_ident(Token *tok) {
-  if (tok->kind != TK_IDENT) {
-    fprintf(stderr, "expected identifier");
-    exit(1);
-  }
-
-  return strndup(tok->loc, tok->len);
-}
-
 // function = ident "(" ")" "{" expr_stmt* "}"
 Function *function(Token *tok, Token **rest) {
   Function *fn = calloc(1, sizeof(Function));
@@ -183,7 +187,7 @@ Function *function(Token *tok, Token **rest) {
   consume(tok, &tok, ")");
   consume(tok, &tok, "{");
 
-  Node head;
+  Node head = {};
   Node *cur = &head;
   for (; !equal(tok, "}");) {
     cur->next = expr_stmt(tok, &tok);

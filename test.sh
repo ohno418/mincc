@@ -38,6 +38,11 @@ assert "main() { 1; 2; 3; }" 3
 assert "main() { a=42; a; }" 42
 assert "main() { a=42; b=23; a; }" 42
 assert "main() { a=42; b=23; b; }" 23
+assert "main() { ans=42; ans; }" 42
+assert "main() { ans=42; xx=55; yyy=123; xx; }" 55
+assert "main() { ans=42; aaa=55; abc=123; ans; }" 42
+assert "main() { ans=42; aaa=55; abc=123; aaa; }" 55
+assert "main() { ans=42; aaa=55; abc=123; abc; }" 123
 
 echo OK
 exit 0
