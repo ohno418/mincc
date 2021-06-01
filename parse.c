@@ -27,12 +27,12 @@ Node *new_binary_node(NodeKind kind, Node *lhs, Node *rhs) {
   return node;
 }
 
-// num ("+" num)?
+// num ("+" expr)*
 Node *expr(Token *tok, Token **rest) {
   Node *node = new_num_node(tok, &tok);
 
   if (equal(tok, "+")) {
-    Node *rhs = new_num_node(tok->next, &tok);
+    Node *rhs = expr(tok->next, &tok);
     node = new_binary_node(ND_ADD, node, rhs);
   }
 
