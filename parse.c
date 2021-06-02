@@ -134,10 +134,28 @@ Node *add(Token *tok, Token **rest) {
   return node;
 }
 
-// assign = add ("=" assign)?
+// relational = add (">" add | "<" add)?
+Node *relational(Token *tok, Token **rest) {
+  Node *node = add(tok, &tok);
+
+  if (equal(tok, "<")) {
+    Node *rhs = add(tok->next, &tok);
+    node = new_binary_node(ND_LT, node, rhs);
+  }
+
+  if (equal(tok, ">")) {
+    Node *lhs = add(tok->next, &tok);
+    node = new_binary_node(ND_LT, lhs, node);
+  }
+
+  *rest = tok;
+  return node;
+}
+
+// assign = relational ("=" assign)?
 Node *assign(Token *tok, Token **rest) {
   Token *start = tok;
-  Node *node = add(tok, &tok);
+  Node *node = relational(tok, &tok);
 
   if (equal(tok, "=")) {
     if (node->kind != ND_VAR) {

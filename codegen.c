@@ -1,5 +1,7 @@
 #include "mincc.h"
 
+int label_cnt = 0;
+
 // Push address of the variable.
 void gen_addr(Node *node) {
   if (node->kind != ND_VAR) {
@@ -49,6 +51,20 @@ void gen_expr(Node *node) {
     printf("    cqo\n");
     printf("    idiv rdi\n");
     printf("    push rax\n");
+    break;
+  case ND_LT:
+    gen_expr(node->lhs);
+    gen_expr(node->rhs);
+    printf("    pop rdi\n");
+    printf("    pop rax\n");
+    printf("    cmp rax, rdi\n");
+    printf("    jl .L.%d\n", label_cnt);
+    printf("    push 0\n");
+    printf("    jmp .L.end.%d\n", label_cnt);
+    printf(".L.%d:\n", label_cnt);
+    printf("    push 1\n");
+    printf(".L.end.%d:\n", label_cnt);
+    label_cnt++;
     break;
   case ND_ASSIGN:
     gen_addr(node->lhs);

@@ -43,6 +43,12 @@ assert "main() { ans=42; xx=55; yyy=123; xx; }" 55
 assert "main() { ans=42; aaa=55; abc=123; ans; }" 42
 assert "main() { ans=42; aaa=55; abc=123; aaa; }" 55
 assert "main() { ans=42; aaa=55; abc=123; abc; }" 123
+assert "main() { 23>65; }" 0
+assert "main() { 23<65; }" 1
+assert "main() { a=23>65; a; }" 0
+assert "main() { a=23<65; a; }" 1
+
+# assert "ret_two() { 2; } main() { ret_two(); }" 2
 
 echo OK
 exit 0
