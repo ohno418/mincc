@@ -134,7 +134,7 @@ Node *add(Token *tok, Token **rest) {
   return node;
 }
 
-// relational = add (">" add | "<" add)?
+// relational = add (">" add | "<" add | "<=" add | ">= add)?
 Node *relational(Token *tok, Token **rest) {
   Node *node = add(tok, &tok);
 
@@ -146,6 +146,16 @@ Node *relational(Token *tok, Token **rest) {
   if (equal(tok, ">")) {
     Node *lhs = add(tok->next, &tok);
     node = new_binary_node(ND_LT, lhs, node);
+  }
+
+  if (equal(tok, "<=")) {
+    Node *rhs = add(tok->next, &tok);
+    node = new_binary_node(ND_LTE, node, rhs);
+  }
+
+  if (equal(tok, ">=")) {
+    Node *lhs = add(tok->next, &tok);
+    node = new_binary_node(ND_LTE, lhs, node);
   }
 
   *rest = tok;

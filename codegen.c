@@ -66,6 +66,20 @@ void gen_expr(Node *node) {
     printf(".L.end.%d:\n", label_cnt);
     label_cnt++;
     break;
+  case ND_LTE:
+    gen_expr(node->lhs);
+    gen_expr(node->rhs);
+    printf("    pop rdi\n");
+    printf("    pop rax\n");
+    printf("    cmp rax, rdi\n");
+    printf("    jle .L.%d\n", label_cnt);
+    printf("    push 0\n");
+    printf("    jmp .L.end.%d\n", label_cnt);
+    printf(".L.%d:\n", label_cnt);
+    printf("    push 1\n");
+    printf(".L.end.%d:\n", label_cnt);
+    label_cnt++;
+    break;
   case ND_ASSIGN:
     gen_addr(node->lhs);
     gen_expr(node->rhs);

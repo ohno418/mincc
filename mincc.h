@@ -39,6 +39,7 @@ typedef enum {
   ND_MUL,       // *
   ND_DIV,       // /
   ND_LT,        // <
+  ND_LTE,       // <=
   ND_ASSIGN,    // =
   ND_VAR,       // variable
 } NodeKind;

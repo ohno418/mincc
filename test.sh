@@ -47,6 +47,13 @@ assert "main() { 23>65; }" 0
 assert "main() { 23<65; }" 1
 assert "main() { a=23>65; a; }" 0
 assert "main() { a=23<65; a; }" 1
+assert "main() { 23<=65; }" 1
+assert "main() { 65<=65; }" 1
+assert "main() { 65<=23; }" 0
+assert "main() { 23>=65; }" 0
+assert "main() { 65>=65; }" 1
+assert "main() { 65>=23; }" 1
+assert "main() { a=65>=23; a; }" 1
 
 # assert "ret_two() { 2; } main() { ret_two(); }" 2
 

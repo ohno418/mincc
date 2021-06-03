@@ -1,5 +1,13 @@
 #include "mincc.h"
 
+int get_puct_len(char *p) {
+  if (strncmp(p, "<=", 2) == 0 || strncmp(p, ">=", 2) == 0) {
+    return 2;
+  }
+
+  return 1;
+}
+
 Token *tokenize(char *input) {
   Token head;
   Token *cur = &head;
@@ -32,13 +40,14 @@ Token *tokenize(char *input) {
     if (*p == '+' || *p == '-' || *p == '*' || *p == '/' ||
         *p == '=' || *p == ';' || *p == '>' || *p == '<' ||
         *p == '(' || *p == ')' || *p == '{' || *p == '}') {
+      int len = get_puct_len(p);
       Token *tok = calloc(1, sizeof(Token));
       tok->kind = TK_PUCT;
       tok->loc = p;
-      tok->len = 1;
+      tok->len = len;
       cur->next = tok;
       cur = cur->next;
-      p++;
+      p += len;
       continue;
     }
 
