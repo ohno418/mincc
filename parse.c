@@ -279,12 +279,21 @@ Node *expr_stmt(Token *tok, Token **rest) {
   return node;
 }
 
-// function = ident "(" ")" "{" expr_stmt* "}"
+// function = "int" ident "(" ")" "{" expr_stmt* "}"
 Function *function(Token *tok, Token **rest) {
   Function *fn = calloc(1, sizeof(Function));
+  lvars = NULL;
+
+  // type
+  if (!equal(tok, "int")) {
+    fprintf(stderr, "\"int\" keyword is required");
+    exit(1);
+  }
+  tok = tok->next;
+
+  // name
   fn->name = get_ident(tok);
   tok = tok->next;
-  lvars = NULL;
 
   consume(tok, &tok, "(");
   consume(tok, &tok, ")");
