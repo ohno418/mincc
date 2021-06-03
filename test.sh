@@ -55,6 +55,10 @@ assert "main() { 23>=65; }" 0
 assert "main() { 65>=65; }" 1
 assert "main() { 65>=23; }" 1
 assert "main() { a=65>=23; a; }" 1
+assert "main() { a=1; a+2; }" 3
+assert "main() { a=1; a+=1; a; }" 2
+assert "main() { a=1; a+=4; a; }" 5
+assert "main() { a=4; a-=2; a; }" 2
 
 # assert "ret_two() { 2; } main() { ret_two(); }" 2
 

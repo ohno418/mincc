@@ -162,7 +162,8 @@ Node *relational(Token *tok, Token **rest) {
   return node;
 }
 
-// assign = relational ("=" assign)?
+// assign    = relational (assign-op assign)?
+// assign-op = "=" | "+=" | "-="
 Node *assign(Token *tok, Token **rest) {
   Token *start = tok;
   Node *node = relational(tok, &tok);
@@ -180,6 +181,74 @@ Node *assign(Token *tok, Token **rest) {
     }
     node->var = var;
     Node *rhs = assign(tok, &tok);
+    node = new_binary_node(ND_ASSIGN, node, rhs);
+    *rest = tok;
+  }
+
+  if (equal(tok, "+=")) {
+    /*
+     * assign
+     *   |-- var
+     *   |-- add
+     *         |-- var
+     *         |-- (lhs)
+     */
+    if (node->kind != ND_VAR) {
+      fprintf(stderr, "assign to a non-variable");
+      exit(1);
+    }
+    tok = tok->next;
+
+    Var *var = find_lvar(get_ident(start));
+    if (!var) {
+      fprintf(stderr, "variable not found");
+      exit(1);
+    }
+    node->var = var;
+
+    Node *var_node = calloc(1, sizeof(Node));
+    var_node->kind = ND_VAR;
+    var_node->var = var;
+
+    Node *rhs = calloc(1, sizeof(Node));
+    rhs->kind = ND_ADD;
+    rhs->lhs = var_node;
+    rhs->rhs = assign(tok, &tok);
+
+    node = new_binary_node(ND_ASSIGN, node, rhs);
+    *rest = tok;
+  }
+
+  if (equal(tok, "-=")) {
+    /*
+     * assign
+     *   |-- var
+     *   |-- sub
+     *         |-- var
+     *         |-- (lhs)
+     */
+    if (node->kind != ND_VAR) {
+      fprintf(stderr, "assign to a non-variable");
+      exit(1);
+    }
+    tok = tok->next;
+
+    Var *var = find_lvar(get_ident(start));
+    if (!var) {
+      fprintf(stderr, "variable not found");
+      exit(1);
+    }
+    node->var = var;
+
+    Node *var_node = calloc(1, sizeof(Node));
+    var_node->kind = ND_VAR;
+    var_node->var = var;
+
+    Node *rhs = calloc(1, sizeof(Node));
+    rhs->kind = ND_SUB;
+    rhs->lhs = var_node;
+    rhs->rhs = assign(tok, &tok);
+
     node = new_binary_node(ND_ASSIGN, node, rhs);
     *rest = tok;
   }
