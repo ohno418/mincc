@@ -174,7 +174,10 @@ Node *assign(Token *tok, Token **rest) {
     }
     tok = tok->next;
 
-    Var *var = create_lvar(get_ident(start));
+    Var *var = find_lvar(get_ident(start));
+    if (!var) {
+      var = create_lvar(get_ident(start));
+    }
     node->var = var;
     Node *rhs = assign(tok, &tok);
     node = new_binary_node(ND_ASSIGN, node, rhs);
