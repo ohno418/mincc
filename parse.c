@@ -68,16 +68,31 @@ Var *create_lvar(char *name) {
   return var;
 }
 
-// primary = num | ident
+// primary = num
+//         | "int" ident
+//         | ident
 Node *primary(Token *tok, Token **rest) {
   if (tok->kind == TK_NUM)
     return new_num_node(tok, rest);
 
+  if (equal(tok, "int") && tok->next->kind == TK_IDENT) {
+    // new variable
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_VAR;
+    node->var = create_lvar(get_ident(tok->next));
+    *rest = tok->next->next;
+    return node;
+  }
+
   if (tok->kind == TK_IDENT) {
-    // variable
+    // existing variable
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_VAR;
     node->var = find_lvar(get_ident(tok));
+    if (!node->var) {
+      fprintf(stderr, "unknown variable");
+      exit(1);
+    }
     *rest = tok->next;
     return node;
   }
@@ -175,11 +190,6 @@ Node *assign(Token *tok, Token **rest) {
     }
     tok = tok->next;
 
-    Var *var = find_lvar(get_ident(start));
-    if (!var) {
-      var = create_lvar(get_ident(start));
-    }
-    node->var = var;
     Node *rhs = assign(tok, &tok);
     node = new_binary_node(ND_ASSIGN, node, rhs);
     *rest = tok;
@@ -199,16 +209,9 @@ Node *assign(Token *tok, Token **rest) {
     }
     tok = tok->next;
 
-    Var *var = find_lvar(get_ident(start));
-    if (!var) {
-      fprintf(stderr, "variable not found");
-      exit(1);
-    }
-    node->var = var;
-
     Node *var_node = calloc(1, sizeof(Node));
     var_node->kind = ND_VAR;
-    var_node->var = var;
+    var_node->var = node->var;
 
     Node *rhs = calloc(1, sizeof(Node));
     rhs->kind = ND_ADD;

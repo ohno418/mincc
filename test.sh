@@ -35,32 +35,30 @@ assert "main() { 1+3/2; }" 2
 assert "main() { 1+3/2*4; }" 5
 assert "main() { 3; 42; }" 42
 assert "main() { 1; 2; 3; }" 3
-assert "main() { a=42; a; }" 42
-assert "main() { a=42; b=23; a; }" 42
-assert "main() { a=42; b=23; b; }" 23
-assert "main() { a=42; a=23; a; }" 23
-assert "main() { ans=42; ans; }" 42
-assert "main() { ans=42; xx=55; yyy=123; xx; }" 55
-assert "main() { ans=42; aaa=55; abc=123; ans; }" 42
-assert "main() { ans=42; aaa=55; abc=123; aaa; }" 55
-assert "main() { ans=42; aaa=55; abc=123; abc; }" 123
+assert "main() { int a=42; a; }" 42
+assert "main() { int a=42; int b=23; a; }" 42
+assert "main() { int a=42; int b=23; b; }" 23
+assert "main() { int a=42; a=23; a; }" 23
+assert "main() { int ans=42; ans; }" 42
+assert "main() { int ans=42; int xxx=55; int yyy=123; xxx; }" 55
+assert "main() { int ans=42; int aaa=55; int abc=123; ans; }" 42
+assert "main() { int ans=42; int aaa=55; int abc=123; aaa; }" 55
+assert "main() { int ans=42; int aaa=55; int abc=123; abc; }" 123
 assert "main() { 23>65; }" 0
 assert "main() { 23<65; }" 1
-assert "main() { a=23>65; a; }" 0
-assert "main() { a=23<65; a; }" 1
+assert "main() { int a=23>65; a; }" 0
+assert "main() { int a=23<65; a; }" 1
 assert "main() { 23<=65; }" 1
 assert "main() { 65<=65; }" 1
 assert "main() { 65<=23; }" 0
 assert "main() { 23>=65; }" 0
 assert "main() { 65>=65; }" 1
 assert "main() { 65>=23; }" 1
-assert "main() { a=65>=23; a; }" 1
-assert "main() { a=1; a+2; }" 3
-assert "main() { a=1; a+=1; a; }" 2
-assert "main() { a=1; a+=4; a; }" 5
-assert "main() { a=4; a-=2; a; }" 2
-
-# assert "ret_two() { 2; } main() { ret_two(); }" 2
+assert "main() { int a=65>=23; a; }" 1
+assert "main() { int a=1; a+2; }" 3
+assert "main() { int a=1; a+=1; a; }" 2
+assert "main() { int a=1; a+=4; a; }" 5
+assert "main() { int a=4; a-=2; a; }" 2
 
 echo OK
 exit 0
