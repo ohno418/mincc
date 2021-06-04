@@ -107,6 +107,11 @@ void gen_expr(Node *node) {
 
 void gen_stmt(Node *node) {
   switch (node->kind) {
+  case ND_RETURN:
+    gen_expr(node->lhs);
+    printf("    pop rax\n");
+    printf("    jmp .L.return\n");
+    break;
   case ND_EXPR_STMT:
     gen_expr(node->lhs);
     printf("    pop rax\n");
@@ -149,6 +154,7 @@ void codegen(Function *fn) {
 
   for (Node *node = fn->body; node; node = node->next)
     gen_stmt(node);
+  printf(".L.return:\n");
 
   printf("    mov rsp, rbp\n");
   printf("    pop rbp\n");

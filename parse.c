@@ -279,7 +279,26 @@ Node *expr_stmt(Token *tok, Token **rest) {
   return node;
 }
 
-// function = "int" ident "(" ")" "{" expr_stmt* "}"
+// stmt = "return" expr ";"
+//      | expr_stmt
+Node *stmt(Token *tok, Token **rest) {
+  if (equal(tok, "return")) {
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_RETURN;
+    node->lhs = expr(tok->next, &tok);
+
+    if (!equal(tok, ";")) {
+      fprintf(stderr, "\";\" expected %s", tok->loc);
+      exit(1);
+    }
+    *rest = tok->next;
+    return node;
+  }
+
+  return expr_stmt(tok, rest);
+}
+
+// function = "int" ident "(" ")" "{" stmt* "}"
 Function *function(Token *tok, Token **rest) {
   Function *fn = calloc(1, sizeof(Function));
   lvars = NULL;
@@ -302,7 +321,7 @@ Function *function(Token *tok, Token **rest) {
   Node head = {};
   Node *cur = &head;
   for (; !equal(tok, "}");) {
-    cur->next = expr_stmt(tok, &tok);
+    cur->next = stmt(tok, &tok);
     cur = cur->next;
   }
   *rest = tok->next;

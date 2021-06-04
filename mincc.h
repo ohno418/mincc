@@ -31,8 +31,6 @@ struct Var {
 };
 
 typedef enum {
-  ND_EXPR_STMT, // expression statement
-                // (lhs has its expression.)
   ND_NUM,       // number
   ND_ADD,       // +
   ND_SUB,       // -
@@ -42,6 +40,11 @@ typedef enum {
   ND_LTE,       // <=
   ND_ASSIGN,    // =
   ND_VAR,       // variable
+
+  // statements:
+  //   `lhs` has its expression
+  ND_RETURN,    // return statement
+  ND_EXPR_STMT, // expression statement
 } NodeKind;
 
 typedef struct Node Node;
