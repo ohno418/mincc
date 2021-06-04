@@ -70,6 +70,7 @@ Var *create_lvar(char *name) {
 
 // primary = num
 //         | "int" ident
+//         | ident "(" ")"
 //         | ident
 Node *primary(Token *tok, Token **rest) {
   if (tok->kind == TK_NUM)
@@ -81,6 +82,19 @@ Node *primary(Token *tok, Token **rest) {
     node->kind = ND_VAR;
     node->var = create_lvar(get_ident(tok->next));
     *rest = tok->next->next;
+    return node;
+  }
+
+  if (tok->kind == TK_IDENT && equal(tok->next, "(")) {
+    if (!equal(tok->next->next, ")")) {
+      fprintf(stderr, "expected \")\"");
+      exit(1);
+    }
+
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_FUNCALL;
+    node->fn_name = get_ident(tok);
+    *rest = tok->next->next->next;
     return node;
   }
 
@@ -333,10 +347,13 @@ Function *function(Token *tok, Token **rest) {
 
 // program = function
 Function *parse(Token *tok) {
-  Function *fn = function(tok, &tok);
-  if (tok->kind != TK_EOF) {
-    fprintf(stderr, "extra token\n");
-    exit(1);
+  Function head;
+  Function *cur = &head;
+
+  for (; tok->kind != TK_EOF;) {
+    cur->next = function(tok, &tok);
+    cur = cur->next;
   }
-  return fn;
+
+  return head.next;
 }

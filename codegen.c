@@ -1,5 +1,6 @@
 #include "mincc.h"
 
+Function *current_fn;
 int label_cnt = 0;
 
 // Push address of the variable.
@@ -99,6 +100,10 @@ void gen_expr(Node *node) {
     printf("    mov rax, [rax]\n");
     printf("    push rax\n");
     break;
+  case ND_FUNCALL:
+    printf("    call %s\n", node->fn_name);
+    printf("    push rax\n");
+    break;
   default:
     fprintf(stderr, "unknown expression\n");
     exit(1);
@@ -110,7 +115,7 @@ void gen_stmt(Node *node) {
   case ND_RETURN:
     gen_expr(node->lhs);
     printf("    pop rax\n");
-    printf("    jmp .L.return\n");
+    printf("    jmp .L.return.%s\n", current_fn->name);
     break;
   case ND_EXPR_STMT:
     gen_expr(node->lhs);
@@ -143,20 +148,24 @@ int stack_size(Function *fn) {
 
 void codegen(Function *fn) {
   printf("    .intel_syntax noprefix\n");
-  printf("    .globl %s\n", fn->name);
 
-  printf("%s:\n", fn->name);
-  printf("    push rbp\n");
-  printf("    mov rbp, rsp\n");
+  for (Function *f = fn; f; f = f->next) {
+    current_fn = f;
 
-  assign_lvar_offsets(fn);
-  printf("    sub rsp, %d\n", stack_size(fn));
+    printf("    .globl %s\n", f->name);
+    printf("%s:\n", f->name);
+    printf("    push rbp\n");
+    printf("    mov rbp, rsp\n");
 
-  for (Node *node = fn->body; node; node = node->next)
-    gen_stmt(node);
-  printf(".L.return:\n");
+    assign_lvar_offsets(f);
+    printf("    sub rsp, %d\n", stack_size(f));
 
-  printf("    mov rsp, rbp\n");
-  printf("    pop rbp\n");
-  printf("    ret\n");
+    for (Node *node = f->body; node; node = node->next)
+      gen_stmt(node);
+
+    printf(".L.return.%s:\n", f->name);
+    printf("    mov rsp, rbp\n");
+    printf("    pop rbp\n");
+    printf("    ret\n");
+  }
 }

@@ -40,6 +40,7 @@ typedef enum {
   ND_LTE,       // <=
   ND_ASSIGN,    // =
   ND_VAR,       // variable
+  ND_FUNCALL,   // function call
 
   // statements:
   //   `lhs` has its expression
@@ -55,15 +56,18 @@ struct Node {
   Node *lhs;
   Node *rhs;
 
-  int num;  // ND_NUM
-  Var *var; // ND_VAR
+  int num;       // ND_NUM
+  Var *var;      // ND_VAR
+  char *fn_name; // ND_FUNCALL
 };
 
-typedef struct Function {
+typedef struct Function Function;
+struct Function {
   char *name;
   Var *lvars;
   Node *body;
-} Function;
+  Function *next;
+};
 
 Function *parse(Token *tok);
 
