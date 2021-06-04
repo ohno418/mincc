@@ -2,7 +2,7 @@
 
 int main(int argc, char **argv) {
   if (argc < 2) {
-    fprintf(stderr, "no input");
+    fprintf(stderr, "no input\n");
     exit(1);
   }
 

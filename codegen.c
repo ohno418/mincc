@@ -5,7 +5,7 @@ int label_cnt = 0;
 // Push address of the variable.
 void gen_addr(Node *node) {
   if (node->kind != ND_VAR) {
-    fprintf(stderr, "not lvalue");
+    fprintf(stderr, "not lvalue\n");
     exit(1);
   }
 
@@ -90,7 +90,7 @@ void gen_expr(Node *node) {
     break;
   case ND_VAR:
     if (!node->var) {
-      fprintf(stderr, "unknown variable");
+      fprintf(stderr, "unknown variable\n");
       exit(1);
     }
 
@@ -100,7 +100,7 @@ void gen_expr(Node *node) {
     printf("    push rax\n");
     break;
   default:
-    fprintf(stderr, "unknown expression");
+    fprintf(stderr, "unknown expression\n");
     exit(1);
   }
 }
@@ -117,7 +117,7 @@ void gen_stmt(Node *node) {
     printf("    pop rax\n");
     break;
   default:
-    fprintf(stderr, "unknown statement");
+    fprintf(stderr, "unknown statement\n");
     exit(1);
   }
 }

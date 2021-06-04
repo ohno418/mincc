@@ -66,7 +66,7 @@ Token *tokenize(char *input) {
       continue;
     }
 
-    fprintf(stderr, "Unknown token: %s", p);
+    fprintf(stderr, "Unknown token: %s\n", p);
     exit(1);
   }
 

@@ -10,7 +10,7 @@ _Bool equal(Token *tok, char *str) {
 
 void consume(Token *tok, Token **rest, char *str) {
   if (!equal(tok, str)) {
-    fprintf(stderr, "expected \"%s\"", str);
+    fprintf(stderr, "expected \"%s\"\n", str);
     exit(1);
   }
 
@@ -19,7 +19,7 @@ void consume(Token *tok, Token **rest, char *str) {
 
 Node *new_num_node(Token *tok, Token **rest) {
   if (tok->kind != TK_NUM) {
-    fprintf(stderr, "expected number token");
+    fprintf(stderr, "expected number token\n");
     exit(1);
   }
 
@@ -40,7 +40,7 @@ Node *new_binary_node(NodeKind kind, Node *lhs, Node *rhs) {
 
 char *get_ident(Token *tok) {
   if (tok->kind != TK_IDENT) {
-    fprintf(stderr, "expected identifier");
+    fprintf(stderr, "expected identifier\n");
     exit(1);
   }
 
@@ -90,14 +90,14 @@ Node *primary(Token *tok, Token **rest) {
     node->kind = ND_VAR;
     node->var = find_lvar(get_ident(tok));
     if (!node->var) {
-      fprintf(stderr, "unknown variable");
+      fprintf(stderr, "unknown variable\n");
       exit(1);
     }
     *rest = tok->next;
     return node;
   }
 
-  fprintf(stderr, "unknown primary: %s", tok->loc);
+  fprintf(stderr, "unknown primary: %s\n", tok->loc);
   exit(1);
 }
 
@@ -185,7 +185,7 @@ Node *assign(Token *tok, Token **rest) {
 
   if (equal(tok, "=")) {
     if (node->kind != ND_VAR) {
-      fprintf(stderr, "assign to a non-variable");
+      fprintf(stderr, "assign to a non-variable\n");
       exit(1);
     }
     tok = tok->next;
@@ -204,7 +204,7 @@ Node *assign(Token *tok, Token **rest) {
      *         |-- (lhs)
      */
     if (node->kind != ND_VAR) {
-      fprintf(stderr, "assign to a non-variable");
+      fprintf(stderr, "assign to a non-variable\n");
       exit(1);
     }
     tok = tok->next;
@@ -231,14 +231,14 @@ Node *assign(Token *tok, Token **rest) {
      *         |-- (lhs)
      */
     if (node->kind != ND_VAR) {
-      fprintf(stderr, "assign to a non-variable");
+      fprintf(stderr, "assign to a non-variable\n");
       exit(1);
     }
     tok = tok->next;
 
     Var *var = find_lvar(get_ident(start));
     if (!var) {
-      fprintf(stderr, "variable not found");
+      fprintf(stderr, "variable not found\n");
       exit(1);
     }
     node->var = var;
@@ -272,7 +272,7 @@ Node *expr_stmt(Token *tok, Token **rest) {
   node->lhs = expr(tok, &tok);
 
   if (!equal(tok, ";")) {
-    fprintf(stderr, "\";\" expected %s", tok->loc);
+    fprintf(stderr, "\";\" expected %s\n", tok->loc);
     exit(1);
   }
   *rest = tok->next;
@@ -288,7 +288,7 @@ Node *stmt(Token *tok, Token **rest) {
     node->lhs = expr(tok->next, &tok);
 
     if (!equal(tok, ";")) {
-      fprintf(stderr, "\";\" expected %s", tok->loc);
+      fprintf(stderr, "\";\" expected %s\n", tok->loc);
       exit(1);
     }
     *rest = tok->next;
@@ -305,7 +305,7 @@ Function *function(Token *tok, Token **rest) {
 
   // type
   if (!equal(tok, "int")) {
-    fprintf(stderr, "\"int\" keyword is required");
+    fprintf(stderr, "\"int\" keyword is required\n");
     exit(1);
   }
   tok = tok->next;
@@ -335,7 +335,7 @@ Function *function(Token *tok, Token **rest) {
 Function *parse(Token *tok) {
   Function *fn = function(tok, &tok);
   if (tok->kind != TK_EOF) {
-    fprintf(stderr, "extra token");
+    fprintf(stderr, "extra token\n");
     exit(1);
   }
   return fn;
