@@ -63,6 +63,7 @@ assert "int main() { return 1; 2; 3; }" 1
 assert "int main() { 1; return 2; 3; }" 2
 assert "int main() { 1; 2; return 3; }" 3
 assert "int main() { return 1; 2; return 3; }" 1
+assert "int main() { int a999=123; return a999; }" 123
 
 echo OK
 exit 0

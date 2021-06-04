@@ -55,7 +55,13 @@ Token *tokenize(char *input) {
     // identifier
     if ('a' <= *p && *p <= 'z') {
       char *start = p;
-      for (; ('a' <= *p && *p <= 'z') || *p == '_'; p++);
+      for (
+          ;
+          ('a' <= *p && *p <= 'z') ||
+            ('0' <= *p && *p <= '9') ||
+            *p == '_';
+          p++
+      );
 
       Token *tok = calloc(1, sizeof(Token));
       tok->kind = TK_IDENT;
