@@ -65,6 +65,8 @@ assert "int main() { 1; 2; return 3; }" 3
 assert "int main() { return 1; 2; return 3; }" 1
 assert "int main() { int a999=123; return a999; }" 123
 assert "int ret42() { return 42; } int main() { return ret42(); }" 42
+assert "int add_two_num(int x, int y) { return x+y; } int main() { return add_two_num(12, 23); }" 35
+assert "int add_two_num(int x, int y) { return x+y; } int main() { return add_two_num(12+2, 23); }" 37
 
 echo OK
 exit 0

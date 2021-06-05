@@ -1,6 +1,7 @@
 #include "mincc.h"
 
-Function *current_fn;
+static Function *current_fn;
+char *arg_regs[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 int label_cnt = 0;
 
 // Push address of the variable.
@@ -100,10 +101,19 @@ void gen_expr(Node *node) {
     printf("    mov rax, [rax]\n");
     printf("    push rax\n");
     break;
-  case ND_FUNCALL:
+  case ND_FUNCALL: {
+    int i = 0;
+    for (Node *arg = node->args; arg; arg = arg->next) {
+      gen_expr(arg);
+      printf("    pop rax\n");
+      printf("    mov %s, rax\n", arg_regs[i]);
+      i++;
+    }
+
     printf("    call %s\n", node->fn_name);
     printf("    push rax\n");
     break;
+  }
   default:
     fprintf(stderr, "unknown expression\n");
     exit(1);
@@ -129,7 +139,11 @@ void gen_stmt(Node *node) {
 
 void assign_lvar_offsets(Function *fn) {
   int offset = 0;
-  for (Var *var = fn->lvars; var; var = var->next) {
+  for (Var *var = fn->params; var; var = var->next) {
+    offset += 8;
+    var->offset = offset;
+  }
+  for (Var *var = fn->locals; var; var = var->next) {
     offset += 8;
     var->offset = offset;
   }
@@ -140,10 +154,23 @@ int align_to(int n, int align) {
 }
 
 int stack_size(Function *fn) {
+  // FIXME
   int stack_size = 0;
-  for (Var *var = fn->lvars; var; var = var->next)
+  for (Var *var = fn->params; var; var = var->next)
+    stack_size += var->offset;
+  for (Var *var = fn->locals; var; var = var->next)
     stack_size += var->offset;
   return align_to(stack_size, 16);
+}
+
+void assign_params(Var *params) {
+  int i = 0;
+  for (Var *param = params; param; param = param->next) {
+    printf("    mov rax, rbp\n");
+    printf("    sub rax, %d\n", param->offset);
+    printf("    mov [rax], %s\n", arg_regs[i]);
+    i++;
+  }
 }
 
 void codegen(Function *fn) {
@@ -159,6 +186,8 @@ void codegen(Function *fn) {
 
     assign_lvar_offsets(f);
     printf("    sub rsp, %d\n", stack_size(f));
+
+    assign_params(f->params);
 
     for (Node *node = f->body; node; node = node->next)
       gen_stmt(node);

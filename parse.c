@@ -1,6 +1,8 @@
 #include "mincc.h"
 
-Var *lvars;
+static Function *current_fn;
+// local variables
+Var *locals;
 
 _Bool equal(Token *tok, char *str) {
   return
@@ -10,7 +12,7 @@ _Bool equal(Token *tok, char *str) {
 
 void consume(Token *tok, Token **rest, char *str) {
   if (!equal(tok, str)) {
-    fprintf(stderr, "expected \"%s\"\n", str);
+    fprintf(stderr, "expected \"%s\": %s\n", str, tok->loc);
     exit(1);
   }
 
@@ -48,13 +50,18 @@ char *get_ident(Token *tok) {
 }
 
 Var *find_lvar(char *name) {
-  for (Var *v = lvars; v; v = v->next) {
+  for (Var *v = current_fn->params; v; v = v->next) {
     if (strlen(v->name) == strlen(name) &&
         strncmp(v->name, name, strlen(name)) == 0) {
       return v;
     }
   }
-
+  for (Var *v = locals; v; v = v->next) {
+    if (strlen(v->name) == strlen(name) &&
+        strncmp(v->name, name, strlen(name)) == 0) {
+      return v;
+    }
+  }
   return NULL;
 }
 
@@ -63,21 +70,23 @@ Var *create_lvar(char *name) {
   var->name = name;
 
   // Register lvar.
-  var->next = lvars;
-  lvars = var;
+  var->next = locals;
+  locals = var;
   return var;
 }
 
+Node *expr(Token *tok, Token **rest);
+
 // primary = num
 //         | "int" ident
-//         | ident "(" ")"
+//         | ident "(" (expr ("," expr)*)? ")"
 //         | ident
 Node *primary(Token *tok, Token **rest) {
   if (tok->kind == TK_NUM)
     return new_num_node(tok, rest);
 
+  // new variable
   if (equal(tok, "int") && tok->next->kind == TK_IDENT) {
-    // new variable
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_VAR;
     node->var = create_lvar(get_ident(tok->next));
@@ -85,26 +94,38 @@ Node *primary(Token *tok, Token **rest) {
     return node;
   }
 
+  // function call
   if (tok->kind == TK_IDENT && equal(tok->next, "(")) {
-    if (!equal(tok->next->next, ")")) {
-      fprintf(stderr, "expected \")\"");
-      exit(1);
+    char *fn_name = get_ident(tok);
+    tok = tok->next->next;
+
+    Node head = {};
+    Node *cur = &head;
+    for (int i = 0; !equal(tok, ")"); i++) {
+      if (i != 0)
+        consume(tok, &tok, ",");
+
+      cur->next = expr(tok, &tok);
+      cur = cur->next;
     }
+    Node *args = head.next;
+    tok = tok->next;
 
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_FUNCALL;
-    node->fn_name = get_ident(tok);
-    *rest = tok->next->next->next;
+    node->fn_name = fn_name;
+    node->args = args;
+    *rest = tok;
     return node;
   }
 
+  // existing variable
   if (tok->kind == TK_IDENT) {
-    // existing variable
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_VAR;
     node->var = find_lvar(get_ident(tok));
     if (!node->var) {
-      fprintf(stderr, "unknown variable\n");
+      fprintf(stderr, "unknown variable: %s\n", tok->loc);
       exit(1);
     }
     *rest = tok->next;
@@ -312,10 +333,13 @@ Node *stmt(Token *tok, Token **rest) {
   return expr_stmt(tok, rest);
 }
 
-// function = "int" ident "(" ")" "{" stmt* "}"
+// function = "int" ident "(" params? ")" "{" stmt* "}"
+// params   = param ("," param)*
+// param    = "int" ident
 Function *function(Token *tok, Token **rest) {
   Function *fn = calloc(1, sizeof(Function));
-  lvars = NULL;
+  current_fn = fn;
+  locals = NULL;
 
   // type
   if (!equal(tok, "int")) {
@@ -328,8 +352,25 @@ Function *function(Token *tok, Token **rest) {
   fn->name = get_ident(tok);
   tok = tok->next;
 
+  // params
   consume(tok, &tok, "(");
-  consume(tok, &tok, ")");
+  if (!equal(tok, ")")) {
+    Var head = {};
+    Var *cur = &head;
+    for (int i = 0; !equal(tok, ")"); i++) {
+      if (i != 0)
+        consume(tok, &tok, ",");
+      consume(tok, &tok, "int");
+
+      Var *var = calloc(1, sizeof(Var));
+      var->name = get_ident(tok);
+      tok = tok->next;
+      cur->next = var;
+      cur = cur->next;
+    }
+    fn->params = head.next;
+  }
+  tok = tok->next;
   consume(tok, &tok, "{");
 
   Node head = {};
@@ -341,7 +382,9 @@ Function *function(Token *tok, Token **rest) {
   *rest = tok->next;
 
   fn->body = head.next;
-  fn->lvars = lvars;
+  fn->locals = locals;
+
+  current_fn = NULL;
   return fn;
 }
 

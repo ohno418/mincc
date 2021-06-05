@@ -58,13 +58,17 @@ struct Node {
 
   int num;       // ND_NUM
   Var *var;      // ND_VAR
-  char *fn_name; // ND_FUNCALL
+
+  // ND_FUNCALL
+  char *fn_name;
+  Node *args;
 };
 
 typedef struct Function Function;
 struct Function {
   char *name;
-  Var *lvars;
+  Var *params;
+  Var *locals;
   Node *body;
   Function *next;
 };
