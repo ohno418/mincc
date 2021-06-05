@@ -147,20 +147,11 @@ void assign_lvar_offsets(Function *fn) {
     offset += 8;
     var->offset = offset;
   }
+  fn->stack_size = offset;
 }
 
 int align_to(int n, int align) {
   return (n + align - 1) / align * align;
-}
-
-int stack_size(Function *fn) {
-  // FIXME
-  int stack_size = 0;
-  for (Var *var = fn->params; var; var = var->next)
-    stack_size += var->offset;
-  for (Var *var = fn->locals; var; var = var->next)
-    stack_size += var->offset;
-  return align_to(stack_size, 16);
 }
 
 void assign_params(Var *params) {
@@ -185,7 +176,7 @@ void codegen(Function *fn) {
     printf("    mov rbp, rsp\n");
 
     assign_lvar_offsets(f);
-    printf("    sub rsp, %d\n", stack_size(f));
+    printf("    sub rsp, %d\n", f->stack_size);
 
     assign_params(f->params);
 

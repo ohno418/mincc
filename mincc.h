@@ -70,6 +70,7 @@ struct Function {
   Var *params;
   Var *locals;
   Node *body;
+  int stack_size;
   Function *next;
 };
 
