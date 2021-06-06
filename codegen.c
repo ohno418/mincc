@@ -127,6 +127,10 @@ void gen_stmt(Node *node) {
     printf("    pop rax\n");
     printf("    jmp .L.return.%s\n", current_fn->name);
     break;
+  case ND_BLOCK:
+    for (Node *stmt = node->body; stmt; stmt = stmt->next)
+      gen_stmt(stmt);
+    break;
   case ND_EXPR_STMT:
     gen_expr(node->lhs);
     printf("    pop rax\n");

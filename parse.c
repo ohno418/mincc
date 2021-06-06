@@ -349,8 +349,10 @@ Node *expr_stmt(Token *tok, Token **rest) {
 }
 
 // stmt = "return" expr ";"
+//      | "{" stmt* "}"
 //      | expr_stmt
 Node *stmt(Token *tok, Token **rest) {
+  // return statement
   if (equal(tok, "return")) {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_RETURN;
@@ -360,6 +362,24 @@ Node *stmt(Token *tok, Token **rest) {
       fprintf(stderr, "\";\" expected %s\n", tok->loc);
       exit(1);
     }
+    *rest = tok->next;
+    return node;
+  }
+
+  // block statement
+  if (equal(tok, "{")) {
+    tok = tok->next;
+
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_BLOCK;
+
+    Node head = {};
+    Node *cur = &head;
+    for (; !equal(tok, "}");) {
+      cur->next = stmt(tok, &tok);
+      cur = cur->next;
+    }
+    node->body = head.next;
     *rest = tok->next;
     return node;
   }

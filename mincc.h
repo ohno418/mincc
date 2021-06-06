@@ -45,6 +45,7 @@ typedef enum {
   // statements:
   //   `lhs` has its expression
   ND_RETURN,    // return statement
+  ND_BLOCK,     // block statement
   ND_EXPR_STMT, // expression statement
 } NodeKind;
 
@@ -62,6 +63,9 @@ struct Node {
   // ND_FUNCALL
   char *fn_name;
   Node *args;
+
+  // ND_BLOCK
+  Node *body;
 };
 
 typedef struct Function Function;
