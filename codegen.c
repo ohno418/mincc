@@ -135,9 +135,13 @@ void gen_stmt(Node *node) {
     gen_expr(node->cond);
     printf("    pop rax\n");
     printf("    cmp rax, 0\n");
-    printf("    je .L.if.end.%d\n", label_cnt);
+    printf("    je .L.if.else.%d\n", label_cnt);
     gen_stmt(node->body);
-    printf(".L.if.end.%d:\n", label_cnt);
+
+    printf(".L.if.else.%d:\n", label_cnt);
+    if (node->els)
+      gen_stmt(node->els);
+
     label_cnt++;
     break;
   case ND_EXPR_STMT:

@@ -67,7 +67,8 @@ struct Node {
 
   // ND_BLOCK, ND_IF
   Node *body;
-  Node *cond; // ND_IF
+  Node *cond;
+  Node *els;
 };
 
 typedef struct Function Function;

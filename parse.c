@@ -350,7 +350,7 @@ Node *expr_stmt(Token *tok, Token **rest) {
 
 // stmt = "return" expr ";"
 //      | "{" stmt* "}"
-//      | "if" "(" expr ")" stmt
+//      | "if" "(" expr ")" stmt ("else" stmt)?
 //      | expr_stmt
 Node *stmt(Token *tok, Token **rest) {
   // return statement
@@ -393,8 +393,12 @@ Node *stmt(Token *tok, Token **rest) {
     consume(tok->next, &tok, "(");
     node->cond = expr(tok, &tok);
     consume(tok, &tok, ")");
+    node->body = stmt(tok, &tok);
 
-    node->body = stmt(tok, rest);
+    if (equal(tok, "else"))
+      node->els = stmt(tok->next, &tok);
+
+    *rest = tok;
     return node;
   }
 
