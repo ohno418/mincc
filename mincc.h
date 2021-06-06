@@ -65,9 +65,12 @@ struct Node {
   char *fn_name;
   Node *args;
 
-  // ND_BLOCK, ND_IF
+  // ND_BLOCK
   Node *body;
+
+  // ND_IF
   Node *cond;
+  Node *then;
   Node *els;
 };
 

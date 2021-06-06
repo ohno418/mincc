@@ -136,7 +136,7 @@ void gen_stmt(Node *node) {
     printf("    pop rax\n");
     printf("    cmp rax, 0\n");
     printf("    je .L.if.else.%d\n", label_cnt);
-    gen_stmt(node->body);
+    gen_stmt(node->then);
 
     printf(".L.if.else.%d:\n", label_cnt);
     if (node->els)

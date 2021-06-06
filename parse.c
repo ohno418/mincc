@@ -393,7 +393,7 @@ Node *stmt(Token *tok, Token **rest) {
     consume(tok->next, &tok, "(");
     node->cond = expr(tok, &tok);
     consume(tok, &tok, ")");
-    node->body = stmt(tok, &tok);
+    node->then = stmt(tok, &tok);
 
     if (equal(tok, "else"))
       node->els = stmt(tok->next, &tok);
