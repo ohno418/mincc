@@ -83,6 +83,10 @@ assert "int main() { if (5) { return 12; } else { return 23; } return 34; }" 12
 assert "int main() { if (0) return 12; else return 23; return 34; }" 23
 assert "int main() { if (1) return 12; else return 23; return 34; }" 12
 assert "int main() { if (5) return 12; else return 23; return 34; }" 12
+assert "int main() { int a=0; for (; a<5;) a++; return a; }" 5
+assert "int main() { int a=0; for (a=3; a<5;) return a; return a; }" 3
+assert "int main() { int a=0; int b=3; for (; a<5; a++) b=4; return a; }" 5
+assert "int main() { int a=0; int b=3; for (; a<5; a++) b=4; return b; }" 4
 
 echo OK
 exit 0

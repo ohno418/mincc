@@ -351,6 +351,7 @@ Node *expr_stmt(Token *tok, Token **rest) {
 // stmt = "return" expr ";"
 //      | "{" stmt* "}"
 //      | "if" "(" expr ")" stmt ("else" stmt)?
+//      | "for" "(" expr ";" expr ";" expr ")" stmt
 //      | expr_stmt
 Node *stmt(Token *tok, Token **rest) {
   // return statement
@@ -398,6 +399,26 @@ Node *stmt(Token *tok, Token **rest) {
     if (equal(tok, "else"))
       node->els = stmt(tok->next, &tok);
 
+    *rest = tok;
+    return node;
+  }
+
+  if (equal(tok, "for")) {
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_FOR;
+
+    consume(tok->next, &tok, "(");
+    if (!equal(tok, ";"))
+      node->init = expr(tok, &tok);
+    consume(tok, &tok, ";");
+    if (!equal(tok, ";"))
+      node->cond = expr(tok, &tok);
+    consume(tok, &tok, ";");
+    if (!equal(tok, ")"))
+      node->inc = expr(tok, &tok);
+    consume(tok, &tok, ")");
+
+    node->then = stmt(tok, &tok);
     *rest = tok;
     return node;
   }

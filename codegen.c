@@ -54,34 +54,38 @@ void gen_expr(Node *node) {
     printf("    idiv rdi\n");
     printf("    push rax\n");
     break;
-  case ND_LT:
+  case ND_LT: {
+    int label = label_cnt;
+    label_cnt++;
     gen_expr(node->lhs);
     gen_expr(node->rhs);
     printf("    pop rdi\n");
     printf("    pop rax\n");
     printf("    cmp rax, rdi\n");
-    printf("    jl .L.%d\n", label_cnt);
+    printf("    jl .L.%d\n", label);
     printf("    push 0\n");
-    printf("    jmp .L.end.%d\n", label_cnt);
-    printf(".L.%d:\n", label_cnt);
+    printf("    jmp .L.end.%d\n", label);
+    printf(".L.%d:\n", label);
     printf("    push 1\n");
-    printf(".L.end.%d:\n", label_cnt);
-    label_cnt++;
+    printf(".L.end.%d:\n", label);
     break;
-  case ND_LTE:
+  }
+  case ND_LTE: {
+    int label = label_cnt;
+    label_cnt++;
     gen_expr(node->lhs);
     gen_expr(node->rhs);
     printf("    pop rdi\n");
     printf("    pop rax\n");
     printf("    cmp rax, rdi\n");
-    printf("    jle .L.%d\n", label_cnt);
+    printf("    jle .L.%d\n", label);
     printf("    push 0\n");
-    printf("    jmp .L.end.%d\n", label_cnt);
-    printf(".L.%d:\n", label_cnt);
+    printf("    jmp .L.end.%d\n", label);
+    printf(".L.%d:\n", label);
     printf("    push 1\n");
-    printf(".L.end.%d:\n", label_cnt);
-    label_cnt++;
+    printf(".L.end.%d:\n", label);
     break;
+  }
   case ND_ASSIGN:
     gen_addr(node->lhs);
     gen_expr(node->rhs);
@@ -131,19 +135,42 @@ void gen_stmt(Node *node) {
     for (Node *stmt = node->body; stmt; stmt = stmt->next)
       gen_stmt(stmt);
     break;
-  case ND_IF:
+  case ND_IF: {
+    int label = label_cnt;
+    label_cnt++;
     gen_expr(node->cond);
     printf("    pop rax\n");
     printf("    cmp rax, 0\n");
-    printf("    je .L.if.else.%d\n", label_cnt);
+    printf("    je .L.if.else.%d\n", label);
     gen_stmt(node->then);
 
-    printf(".L.if.else.%d:\n", label_cnt);
+    printf(".L.if.else.%d:\n", label);
     if (node->els)
       gen_stmt(node->els);
-
-    label_cnt++;
     break;
+  }
+  case ND_FOR: {
+    int label = label_cnt;
+    label_cnt++;
+    if (node->init) {
+      gen_expr(node->init);
+      printf("    pop rax\n");
+    }
+    printf(".L.for.then.%d:\n", label);
+    gen_stmt(node->then);
+    if (node->inc) {
+      gen_expr(node->inc);
+      printf("    pop rax\n");
+    }
+    if (node->cond) {
+      gen_expr(node->cond);
+      printf("    pop rax\n");
+    }
+    printf("    cmp rax, 0\n");
+    printf("    jne .L.for.then.%d\n", label);
+    printf(".L.for.end.%d:\n", label);
+    break;
+  }
   case ND_EXPR_STMT:
     gen_expr(node->lhs);
     printf("    pop rax\n");
