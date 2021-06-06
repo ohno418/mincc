@@ -2,7 +2,8 @@
 
 int get_puct_len(char *p) {
   if (strncmp(p, "<=", 2) == 0 || strncmp(p, ">=", 2) == 0 ||
-      strncmp(p, "+=", 2) == 0 || strncmp(p, "-=", 2) == 0) {
+      strncmp(p, "+=", 2) == 0 || strncmp(p, "-=", 2) == 0 ||
+      strncmp(p, "++", 2) == 0 || strncmp(p, "--", 2) == 0) {
     return 2;
   }
 

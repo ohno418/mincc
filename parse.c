@@ -80,6 +80,7 @@ Node *expr(Token *tok, Token **rest);
 // primary = num
 //         | "int" ident
 //         | ident "(" (expr ("," expr)*)? ")"
+//         | ident ("++" | "--")
 //         | ident
 Node *primary(Token *tok, Token **rest) {
   if (tok->kind == TK_NUM)
@@ -116,6 +117,39 @@ Node *primary(Token *tok, Token **rest) {
     node->fn_name = fn_name;
     node->args = args;
     *rest = tok;
+    return node;
+  }
+
+  // increment/decrement operation
+  if (tok->kind == TK_IDENT && (equal(tok->next, "++") || equal(tok->next, "--"))) {
+    /*
+     * assign
+     *   |-- var
+     *   |-- add
+     *         |-- var
+     *         |-- num = 1
+     */
+    Node *var_node = calloc(1, sizeof(Node));
+    var_node->kind = ND_VAR;
+    var_node->var = find_lvar(get_ident(tok));
+
+    Node *num_node = calloc(1, sizeof(Node));
+    num_node->kind = ND_NUM;
+    num_node->num = 1;
+
+    Node *rhs;
+    if (equal(tok->next, "++"))
+      rhs = new_binary_node(ND_ADD, var_node, num_node);
+    if (equal(tok->next, "--"))
+      rhs = new_binary_node(ND_SUB, var_node, num_node);
+
+    Node *node = new_binary_node(
+        ND_ASSIGN,
+        var_node,
+        rhs
+    );
+
+    *rest = tok->next->next;
     return node;
   }
 
