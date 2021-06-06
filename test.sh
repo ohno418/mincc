@@ -71,6 +71,12 @@ assert "int main() { int a=3; a++; return a; }" 4
 assert "int main() { int a=3; a--; return a; }" 2
 assert "int main() { { return 42; } }" 42
 assert "int main() { int a=4; { a++; } return a; }" 5
+assert "int main() { if (0) { return 12; } return 23; }" 23
+assert "int main() { if (1) { return 12; } return 23; }" 12
+assert "int main() { if (5) { return 12; } return 23; }" 12
+assert "int main() { if (0) return 12; return 23; }" 23
+assert "int main() { if (1) return 12; return 23; }" 12
+assert "int main() { if (5) return 12; return 23; }" 12
 
 echo OK
 exit 0

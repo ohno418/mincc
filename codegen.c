@@ -131,6 +131,15 @@ void gen_stmt(Node *node) {
     for (Node *stmt = node->body; stmt; stmt = stmt->next)
       gen_stmt(stmt);
     break;
+  case ND_IF:
+    gen_expr(node->cond);
+    printf("    pop rax\n");
+    printf("    cmp rax, 0\n");
+    printf("    je .L.if.end.%d\n", label_cnt);
+    gen_stmt(node->body);
+    printf(".L.if.end.%d:\n", label_cnt);
+    label_cnt++;
+    break;
   case ND_EXPR_STMT:
     gen_expr(node->lhs);
     printf("    pop rax\n");

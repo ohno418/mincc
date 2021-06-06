@@ -350,6 +350,7 @@ Node *expr_stmt(Token *tok, Token **rest) {
 
 // stmt = "return" expr ";"
 //      | "{" stmt* "}"
+//      | "if" "(" expr ")" stmt
 //      | expr_stmt
 Node *stmt(Token *tok, Token **rest) {
   // return statement
@@ -381,6 +382,19 @@ Node *stmt(Token *tok, Token **rest) {
     }
     node->body = head.next;
     *rest = tok->next;
+    return node;
+  }
+
+  // if statement
+  if (equal(tok, "if")) {
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_IF;
+
+    consume(tok->next, &tok, "(");
+    node->cond = expr(tok, &tok);
+    consume(tok, &tok, ")");
+
+    node->body = stmt(tok, rest);
     return node;
   }
 
