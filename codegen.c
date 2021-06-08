@@ -181,21 +181,21 @@ void gen_stmt(Node *node) {
   }
 }
 
+int align_to(int n, int align) {
+  return (n + align - 1) / align * align;
+}
+
 void assign_lvar_offsets(Function *fn) {
   int offset = 0;
   for (Var *var = fn->params; var; var = var->next) {
-    offset += 8;
+    offset += var->ty->size;
     var->offset = offset;
   }
   for (Var *var = fn->locals; var; var = var->next) {
-    offset += 8;
+    offset += var->ty->size;
     var->offset = offset;
   }
-  fn->stack_size = offset;
-}
-
-int align_to(int n, int align) {
-  return (n + align - 1) / align * align;
+  fn->stack_size = align_to(offset, 16);
 }
 
 void assign_params(Var *params) {
