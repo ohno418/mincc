@@ -61,8 +61,8 @@ struct Node {
   Node *lhs;
   Node *rhs;
 
-  int num;       // ND_NUM
-  Var *var;      // ND_VAR
+  int num;  // ND_NUM
+  Var *var; // ND_VAR
 
   // ND_FUNCALL
   char *fn_name;
