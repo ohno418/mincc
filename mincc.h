@@ -82,8 +82,7 @@ struct Node {
 typedef struct Function Function;
 struct Function {
   char *name;
-  // TODO
-  // Type *ty;
+  Type *ty;
   Var *params;
   Var *locals;
   Node *body;

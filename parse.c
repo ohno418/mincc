@@ -453,6 +453,7 @@ Function *function(Token *tok, Token **rest) {
     fprintf(stderr, "\"int\" keyword is required\n");
     exit(1);
   }
+  fn->ty = ty_int();
   tok = tok->next;
 
   // name
