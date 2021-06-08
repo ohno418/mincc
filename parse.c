@@ -65,9 +65,10 @@ Var *find_lvar(char *name) {
   return NULL;
 }
 
-Var *create_lvar(char *name) {
+Var *create_lvar(char *name, Type *ty) {
   Var *var = calloc(1, sizeof(Var));
   var->name = name;
+  var->ty = ty;
 
   // Register lvar.
   var->next = locals;
@@ -79,6 +80,7 @@ Node *expr(Token *tok, Token **rest);
 
 // primary = num
 //         | "int" ident
+//         | "sizeof" "(" ident ")"
 //         | ident "(" (expr ("," expr)*)? ")"
 //         | ident ("++" | "--")
 //         | ident
@@ -90,8 +92,20 @@ Node *primary(Token *tok, Token **rest) {
   if (equal(tok, "int") && tok->next->kind == TK_IDENT) {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_VAR;
-    node->var = create_lvar(get_ident(tok->next));
+    node->var = create_lvar(get_ident(tok->next), ty_int());;
     *rest = tok->next->next;
+    return node;
+  }
+
+  // sizeof
+  if (equal(tok, "sizeof")) {
+    consume(tok->next, &tok, "(");
+    Var *var = find_lvar(get_ident(tok));
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_NUM;
+    node->num = var->ty->size;
+    consume(tok->next, &tok, ")");
+    *rest = tok;
     return node;
   }
 
@@ -457,7 +471,9 @@ Function *function(Token *tok, Token **rest) {
 
       Var *var = calloc(1, sizeof(Var));
       var->name = get_ident(tok);
+      var->ty = ty_int();
       tok = tok->next;
+
       cur->next = var;
       cur = cur->next;
     }

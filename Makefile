@@ -1,5 +1,5 @@
 CC=clang
-OBJS=main.o tokenize.o parse.o codegen.o
+OBJS=main.o tokenize.o parse.o codegen.o type.o
 
 mincc: $(OBJS)
 	$(CC) -o $@ $^

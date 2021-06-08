@@ -23,10 +23,12 @@ struct Token {
 Token *tokenize(char *input);
 
 /* parse.c */
+typedef struct Type Type;
 typedef struct Var Var;
 struct Var {
   Var *next;
   char *name;
+  Type *ty;
   int offset;
 };
 
@@ -80,6 +82,8 @@ struct Node {
 typedef struct Function Function;
 struct Function {
   char *name;
+  // TODO
+  // Type *ty;
   Var *params;
   Var *locals;
   Node *body;
@@ -91,3 +95,15 @@ Function *parse(Token *tok);
 
 /* codegen.c */
 void codegen(Function *fn);
+
+/* type.c */
+typedef enum {
+  TY_INT,
+} TypeKind;
+
+struct Type {
+  TypeKind kind;
+  int size;
+};
+
+Type *ty_int();
