@@ -43,6 +43,7 @@ typedef enum {
   ND_ASSIGN,    // =
   ND_VAR,       // variable
   ND_FUNCALL,   // function call
+  ND_ADDR,      // unary &
 
   // statements:
   //   `lhs` has its expression
@@ -97,12 +98,17 @@ void codegen(Function *fn);
 
 /* type.c */
 typedef enum {
-  TY_INT,
+  TY_INT, // int
+  TY_PTR, // pointer
 } TypeKind;
 
 struct Type {
   TypeKind kind;
   int size;
+
+  // pointer
+  Type *base;
 };
 
 Type *ty_int();
+Type *ty_ptr(Type *base);

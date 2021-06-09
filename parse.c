@@ -42,7 +42,7 @@ Node *new_binary_node(NodeKind kind, Node *lhs, Node *rhs) {
 
 char *get_ident(Token *tok) {
   if (tok->kind != TK_IDENT) {
-    fprintf(stderr, "expected identifier\n");
+    fprintf(stderr, "expected identifier:%s\n", tok->loc);
     exit(1);
   }
 
@@ -78,8 +78,32 @@ Var *create_lvar(char *name, Type *ty) {
 
 Node *expr(Token *tok, Token **rest);
 
+_Bool is_typename(Token *tok) {
+  return equal(tok, "int");
+}
+
+// typespec = "int" "*"
+//          | "int"
+Type *typespec(Token *tok, Token **rest) {
+  if (equal(tok, "int")) {
+    Type *ty = ty_int();
+
+    if (equal(tok->next, "*")) {
+      ty = ty_ptr(ty);
+      *rest = tok->next->next;
+      return ty;
+    }
+
+    *rest = tok->next;
+    return ty;
+  }
+
+  fprintf(stderr, "unknown type:%s\n", tok->loc);
+  exit(1);
+}
+
 // primary = num
-//         | "int" ident
+//         | typespec ident
 //         | "sizeof" "(" ident ")"
 //         | ident "(" (expr ("," expr)*)? ")"
 //         | ident ("++" | "--")
@@ -89,11 +113,12 @@ Node *primary(Token *tok, Token **rest) {
     return new_num_node(tok, rest);
 
   // new variable
-  if (equal(tok, "int") && tok->next->kind == TK_IDENT) {
+  if (is_typename(tok)) {
+    Type *ty = typespec(tok, &tok);
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_VAR;
-    node->var = create_lvar(get_ident(tok->next), ty_int());;
-    *rest = tok->next->next;
+    node->var = create_lvar(get_ident(tok), ty);;
+    *rest = tok->next;
     return node;
   }
 
@@ -184,19 +209,33 @@ Node *primary(Token *tok, Token **rest) {
   exit(1);
 }
 
-// mul = primary ("*" | "/" primary)*
+// unary = "&" primary
+//       | primary
+Node *unary(Token *tok, Token **rest) {
+  if (equal(tok, "&")) {
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_ADDR;
+    node->lhs = primary(tok->next, &tok);
+    *rest = tok;
+    return node;
+  }
+
+  return primary(tok, rest);
+}
+
+// mul = unary ("*" | "/" unary)*
 Node *mul(Token *tok, Token **rest) {
-  Node *node = primary(tok, &tok);
+  Node *node = unary(tok, &tok);
 
   for (;;) {
     if (equal(tok, "*")) {
-      Node *rhs = primary(tok->next, &tok);
+      Node *rhs = unary(tok->next, &tok);
       node = new_binary_node(ND_MUL, node, rhs);
       continue;
     }
 
     if (equal(tok, "/")) {
-      Node *rhs = primary(tok->next, &tok);
+      Node *rhs = unary(tok->next, &tok);
       node = new_binary_node(ND_DIV, node, rhs);
       continue;
     }
@@ -355,7 +394,7 @@ Node *expr_stmt(Token *tok, Token **rest) {
   node->lhs = expr(tok, &tok);
 
   if (!equal(tok, ";")) {
-    fprintf(stderr, "\";\" expected %s\n", tok->loc);
+    fprintf(stderr, "\";\" expected:%s\n", tok->loc);
     exit(1);
   }
   *rest = tok->next;

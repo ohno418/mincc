@@ -118,6 +118,12 @@ void gen_expr(Node *node) {
     printf("    push rax\n");
     break;
   }
+  case ND_ADDR:
+    gen_addr(node->lhs);
+    printf("    pop rax\n");
+    printf("    lea rax, [rax]\n");
+    printf("    push rax\n");
+    break;
   default:
     fprintf(stderr, "unknown expression\n");
     exit(1);
