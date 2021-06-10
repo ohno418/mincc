@@ -90,8 +90,8 @@ assert "int main() { int a=0; int b=3; for (; a<5; a++) b=4; return b; }" 4
 assert "int main() { int j=5; for (int i=0; i<10; i++) j++; return i; }" 10
 assert "int main() { int j=5; for (int i=0; i<10; i++) j++; return j; }" 15
 assert "int main() { int a=42; return sizeof(a); }" 8
-# TODO
-assert "int main() { int a=42; int *p=&a; return a; }" 42
+assert "int main() { int a=42; int b=12; int *p=&a; return *p; }" 42
+assert "int main() { int a=42; int b=12; int *p=&a; p += 8; return *p; }" 12
 
 echo OK
 exit 0

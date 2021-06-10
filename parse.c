@@ -209,12 +209,20 @@ Node *primary(Token *tok, Token **rest) {
   exit(1);
 }
 
-// unary = "&" primary
+// unary = ("&" | "*") primary
 //       | primary
 Node *unary(Token *tok, Token **rest) {
   if (equal(tok, "&")) {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_ADDR;
+    node->lhs = primary(tok->next, &tok);
+    *rest = tok;
+    return node;
+  }
+
+  if (equal(tok, "*")) {
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_DEREF;
     node->lhs = primary(tok->next, &tok);
     *rest = tok;
     return node;

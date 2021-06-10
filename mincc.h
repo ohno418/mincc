@@ -44,6 +44,7 @@ typedef enum {
   ND_VAR,       // variable
   ND_FUNCALL,   // function call
   ND_ADDR,      // unary &
+  ND_DEREF,     // unary *
 
   // statements:
   //   `lhs` has its expression
