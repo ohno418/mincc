@@ -176,10 +176,20 @@ Node *primary(Token *tok, Token **rest) {
   if (equal(tok, "sizeof")) {
     consume(tok->next, &tok, "(");
     Var *var = find_lvar(get_ident(tok));
+
+    int size;
+    if (var) {
+      size = var->ty->size;
+      tok = tok->next;
+    } else {
+      Type *ty = typespec(tok, &tok);
+      size = ty->size;
+    }
+
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_NUM;
-    node->num = var->ty->size;
-    consume(tok->next, &tok, ")");
+    node->num = size;
+    consume(tok, &tok, ")");
     *rest = tok;
     return node;
   }
