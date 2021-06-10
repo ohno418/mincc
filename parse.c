@@ -102,6 +102,56 @@ Type *typespec(Token *tok, Token **rest) {
   exit(1);
 }
 
+Node *new_add(Node *lhs, Node *rhs_num_node) {
+  // pointer addition
+  if (lhs->var && lhs->var->ty->kind == TY_PTR) {
+    /*
+     * add
+     *   |-- lhs (pointer variable)
+     *   |-- mul
+ l   *         |-- rhs_num_node
+     *         |-- num (base type size)
+     */
+    Node *mul_node = calloc(1, sizeof(Node));
+    mul_node->kind = ND_MUL;
+    mul_node->lhs = rhs_num_node;
+
+    Node *ptr_size_node = calloc(1, sizeof(Node));
+    ptr_size_node->kind = ND_NUM;
+    ptr_size_node->num = lhs->var->ty->base->size;
+    mul_node->rhs = ptr_size_node;
+
+    return new_binary_node(ND_ADD, lhs, mul_node);
+  }
+
+  return new_binary_node(ND_ADD, lhs, rhs_num_node);
+}
+
+Node *new_sub(Node *lhs, Node *rhs_num_node) {
+  // pointer subtraction
+  if (lhs->var && lhs->var->ty->kind == TY_PTR) {
+    /*
+     * sub
+     *   |-- lhs (pointer variable)
+     *   |-- mul
+ l   *         |-- rhs_num_node
+     *         |-- num (base type size)
+     */
+    Node *mul_node = calloc(1, sizeof(Node));
+    mul_node->kind = ND_MUL;
+    mul_node->lhs = rhs_num_node;
+
+    Node *ptr_size_node = calloc(1, sizeof(Node));
+    ptr_size_node->kind = ND_NUM;
+    ptr_size_node->num = lhs->var->ty->base->size;
+    mul_node->rhs = ptr_size_node;
+
+    return new_binary_node(ND_SUB, lhs, mul_node);
+  }
+
+  return new_binary_node(ND_SUB, lhs, rhs_num_node);
+}
+
 // primary = num
 //         | typespec ident
 //         | "sizeof" "(" ident ")"
@@ -178,9 +228,9 @@ Node *primary(Token *tok, Token **rest) {
 
     Node *rhs;
     if (equal(tok->next, "++"))
-      rhs = new_binary_node(ND_ADD, var_node, num_node);
+      rhs = new_add(var_node, num_node);
     if (equal(tok->next, "--"))
-      rhs = new_binary_node(ND_SUB, var_node, num_node);
+      rhs = new_sub(var_node, num_node);
 
     Node *node = new_binary_node(
         ND_ASSIGN,
@@ -261,14 +311,12 @@ Node *add(Token *tok, Token **rest) {
 
   for (;;) {
     if (equal(tok, "+")) {
-      Node *rhs = mul(tok->next, &tok);
-      node = new_binary_node(ND_ADD, node, rhs);
+      node = new_add(node, mul(tok->next, &tok));
       continue;
     }
 
     if (equal(tok, "-")) {
-      Node *rhs = mul(tok->next, &tok);
-      node = new_binary_node(ND_SUB, node, rhs);
+      node = new_sub(node, mul(tok->next, &tok));
       continue;
     }
 
@@ -337,12 +385,11 @@ Node *assign(Token *tok, Token **rest) {
     var_node->kind = ND_VAR;
     var_node->var = node->var;
 
-    Node *rhs = calloc(1, sizeof(Node));
-    rhs->kind = ND_ADD;
-    rhs->lhs = var_node;
-    rhs->rhs = assign(tok, &tok);
-
-    node = new_binary_node(ND_ASSIGN, node, rhs);
+    node = new_binary_node(
+        ND_ASSIGN,
+        node,
+        new_add(var_node, assign(tok, &tok))
+    );
     *rest = tok;
   }
 
@@ -371,12 +418,11 @@ Node *assign(Token *tok, Token **rest) {
     var_node->kind = ND_VAR;
     var_node->var = var;
 
-    Node *rhs = calloc(1, sizeof(Node));
-    rhs->kind = ND_SUB;
-    rhs->lhs = var_node;
-    rhs->rhs = assign(tok, &tok);
-
-    node = new_binary_node(ND_ASSIGN, node, rhs);
+    node = new_binary_node(
+        ND_ASSIGN,
+        node,
+        new_sub(var_node, assign(tok, &tok))
+    );
     *rest = tok;
   }
 
