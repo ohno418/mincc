@@ -1,7 +1,8 @@
 #include "mincc.h"
 
 static Function *current_fn;
-char *arg_regs[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
+char *arg_regs32[6] = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
+char *arg_regs64[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 int label_cnt = 0;
 
 void gen_expr(Node *node);
@@ -98,7 +99,10 @@ void gen_expr(Node *node) {
     gen_expr(node->rhs);
     printf("    pop rdi\n");
     printf("    pop rax\n");
-    printf("    mov [rax], rdi\n");
+    if (node->lhs->var && node->lhs->var->ty->size == 4)
+      printf("    mov dword ptr [rax], edi\n");
+    else
+      printf("    mov [rax], rdi\n");
     printf("    push rdi\n");
     break;
   case ND_VAR:
@@ -109,7 +113,10 @@ void gen_expr(Node *node) {
 
     printf("    mov rax, rbp\n");
     printf("    sub rax, %d\n", node->var->offset);
-    printf("    mov rax, [rax]\n");
+    if (node->var->ty->size == 4)
+      printf("    mov eax, dword ptr [rax]\n");
+    else
+      printf("    mov rax, [rax]\n");
     printf("    push rax\n");
     break;
   case ND_FUNCALL: {
@@ -117,7 +124,7 @@ void gen_expr(Node *node) {
     for (Node *arg = node->args; arg; arg = arg->next) {
       gen_expr(arg);
       printf("    pop rax\n");
-      printf("    mov %s, rax\n", arg_regs[i]);
+      printf("    mov %s, rax\n", arg_regs64[i]);
       i++;
     }
 
@@ -255,7 +262,10 @@ void assign_params(Var *params) {
   for (Var *param = params; param; param = param->next) {
     printf("    mov rax, rbp\n");
     printf("    sub rax, %d\n", param->offset);
-    printf("    mov [rax], %s\n", arg_regs[i]);
+    if (param->ty->size == 4)
+      printf("    mov dword ptr [rax], %s\n", arg_regs32[i]);
+    else
+      printf("    mov [rax], %s\n", arg_regs64[i]);
     i++;
   }
 }
