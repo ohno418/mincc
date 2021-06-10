@@ -4,16 +4,23 @@ static Function *current_fn;
 char *arg_regs[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 int label_cnt = 0;
 
+void gen_expr(Node *node);
+
 // Push address of the variable.
 void gen_addr(Node *node) {
-  if (node->kind != ND_VAR) {
+  switch (node->kind) {
+  case ND_VAR:
+    printf("    mov rax, rbp\n");
+    printf("    sub rax, %d\n", node->var->offset);
+    printf("    push rax\n");
+    return;
+  case ND_DEREF:
+    gen_expr(node->lhs);
+    return;
+  default:
     fprintf(stderr, "not lvalue\n");
     exit(1);
   }
-
-  printf("    mov rax, rbp\n");
-  printf("    sub rax, %d\n", node->var->offset);
-  printf("    push rax\n");
 }
 
 void gen_expr(Node *node) {

@@ -314,13 +314,7 @@ Node *assign(Token *tok, Token **rest) {
   Node *node = relational(tok, &tok);
 
   if (equal(tok, "=")) {
-    if (node->kind != ND_VAR) {
-      fprintf(stderr, "assign to a non-variable\n");
-      exit(1);
-    }
-    tok = tok->next;
-
-    Node *rhs = assign(tok, &tok);
+    Node *rhs = assign(tok->next, &tok);
     node = new_binary_node(ND_ASSIGN, node, rhs);
     *rest = tok;
   }

@@ -92,6 +92,7 @@ assert "int main() { int j=5; for (int i=0; i<10; i++) j++; return j; }" 15
 assert "int main() { int a=42; return sizeof(a); }" 8
 assert "int main() { int a=42; int b=12; int *p=&a; return *p; }" 42
 assert "int main() { int a=42; int b=12; int *p=&a; p += 8; return *p; }" 12
+assert "int main() { int a=42; int *p=&a; *p = 12; return a; }" 12
 
 echo OK
 exit 0
