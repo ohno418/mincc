@@ -46,12 +46,13 @@ typedef enum {
   ND_ADDR,      // unary &
   ND_DEREF,     // unary *
 
-  // statements:
-  //   `lhs` has its expression
-  ND_RETURN,    // return statement
-  ND_BLOCK,     // block statement
-  ND_IF,        // if statement
-  ND_FOR,       // for statement
+  // statements
+  ND_RETURN,    // "return"
+  ND_BLOCK,     // "block"
+  ND_IF,        // "if"
+  ND_FOR,       // "for"
+  ND_SWITCH,    // "switch"
+  ND_CASE,      // "case"
   ND_EXPR_STMT, // expression statement
 } NodeKind;
 
@@ -73,12 +74,13 @@ struct Node {
   // ND_BLOCK
   Node *body;
 
-  // ND_IF, ND_FOR
+  // ND_IF, ND_FOR, ND_SWITCH
   Node *init;
   Node *cond;
   Node *inc;
   Node *then;
   Node *els;
+  Node *case_next;
 };
 
 typedef struct Function Function;

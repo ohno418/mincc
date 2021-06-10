@@ -42,7 +42,7 @@ Token *tokenize(char *input) {
     if (*p == '+' || *p == '-' || *p == '*' || *p == '/' ||
         *p == '=' || *p == ';' || *p == '>' || *p == '<' ||
         *p == '(' || *p == ')' || *p == '{' || *p == '}' ||
-        *p == ',' || *p == '&') {
+        *p == ',' || *p == '&' || *p == ':') {
       int len = get_puct_len(p);
       Token *tok = calloc(1, sizeof(Token));
       tok->kind = TK_PUCT;

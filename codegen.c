@@ -190,6 +190,39 @@ void gen_stmt(Node *node) {
     printf(".L.for.end.%d:\n", label);
     break;
   }
+  case ND_SWITCH: {
+    int label = label_cnt;
+    label_cnt++;
+
+    gen_expr(node->cond);
+    printf("    pop rax\n");
+
+    int i = 0;
+    for (
+      Node *case_node = node->case_next;
+      case_node;
+      case_node = case_node->case_next
+    ) {
+      gen_expr(case_node->cond);
+      printf("    pop rdi\n");
+      printf("    cmp rax, rdi\n");
+      printf("    je .L.%d.case.%d\n", label, i);
+      i++;
+    }
+
+    int j = 0;
+    for (
+      Node *case_node = node->case_next;
+      case_node;
+      case_node = case_node->case_next
+    ) {
+      printf(".L.%d.case.%d:\n", label, j);
+      gen_stmt(case_node->then);
+      printf("    pop rax\n");
+      j++;
+    }
+    break;
+  }
   case ND_EXPR_STMT:
     gen_expr(node->lhs);
     printf("    pop rax\n");

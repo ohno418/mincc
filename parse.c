@@ -407,6 +407,7 @@ Node *expr_stmt(Token *tok, Token **rest) {
 //      | "{" stmt* "}"
 //      | "if" "(" expr ")" stmt ("else" stmt)?
 //      | "for" "(" expr ";" expr ";" expr ")" stmt
+//      | "switch" "(" expr ")" "{" ("case" expr ":" stmt)* "}"
 //      | expr_stmt
 Node *stmt(Token *tok, Token **rest) {
   // return statement
@@ -458,6 +459,7 @@ Node *stmt(Token *tok, Token **rest) {
     return node;
   }
 
+  // for statement
   if (equal(tok, "for")) {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_FOR;
@@ -474,6 +476,36 @@ Node *stmt(Token *tok, Token **rest) {
     consume(tok, &tok, ")");
 
     node->then = stmt(tok, &tok);
+    *rest = tok;
+    return node;
+  }
+
+  // switch statement
+  if (equal(tok, "switch")) {
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_SWITCH;
+
+    consume(tok->next, &tok, "(");
+    node->cond = expr(tok, &tok);
+    consume(tok, &tok, ")");
+
+    consume(tok, &tok, "{");
+    // case statements
+    Node head = {};
+    Node *cur = &head;
+    for (; equal(tok, "case");) {
+      Node *case_node = calloc(1, sizeof(Node));
+      case_node->kind = ND_CASE;
+      case_node->cond = expr(tok->next, &tok);
+      consume(tok, &tok, ":");
+      case_node->then = stmt(tok, &tok);
+
+      cur->case_next = case_node;
+      cur = cur->case_next;
+    }
+    node->case_next = head.case_next;
+    consume(tok, &tok, "}");
+
     *rest = tok;
     return node;
   }

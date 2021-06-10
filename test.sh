@@ -93,6 +93,10 @@ assert "int main() { int a=42; return sizeof(a); }" 8
 assert "int main() { int a=42; int b=12; int *p=&a; return *p; }" 42
 assert "int main() { int a=42; int b=12; int *p=&a; p += 8; return *p; }" 12
 assert "int main() { int a=42; int *p=&a; *p = 12; return a; }" 12
+assert "int main() { switch (0) { case 0: return 12; case 1: return 23; case 2: return 34; } }" 12
+assert "int main() { switch (1) { case 0: return 12; case 1: return 23; case 2: return 34; } }" 23
+assert "int main() { switch (2) { case 0: return 12; case 1: return 23; case 2: return 34; } }" 34
+assert "int main() { switch (1) { case 0: return 12; case 1: { int ans=42; return ans; } case 2: return 34; } }" 42
 
 echo OK
 exit 0
